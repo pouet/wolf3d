@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/24 14:04:24 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/24 14:52:43 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,10 @@ typedef struct	s_point
 	int			y;
 	int			z;
 }				t_point;
+
+typedef struct	s_game
+{
+}				t_game;
 
 typedef struct	s_cont
 {
