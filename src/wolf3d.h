@@ -46,19 +46,26 @@ enum	e_mouse
 
 enum
 {
-	WIN_W = 1000,
-	WIN_H = 1000
+	WIN_W = 320,
+	WIN_H = 200
 };
 
 typedef struct	s_point
 {
-	int			x;
-	int			y;
-	int			z;
+	double		x;
+	double		y;
+	double		z;
 }				t_point;
 
 typedef struct	s_game
 {
+	int			wallh[WIN_W];
+	t_point		cam;
+	t_point		pos;
+	t_point		dir;
+	t_point		plane;
+	t_point		raypos;
+	t_point		raydir;
 }				t_game;
 
 typedef struct	s_cont
@@ -72,6 +79,7 @@ typedef struct	s_cont
 	int			bpp;
 	int			szline;
 	int			endian;
+	t_game		g;
 }				t_cont;
 
 void			new_image(t_cont *cont);
@@ -82,5 +90,9 @@ int				key_zoom(int key, t_cont *cont);
 int				key_func(int key, void *par);
 int				mouse_func(int button, int x, int y, void *par);
 void			init(t_cont *cont);
+
+
+void			put_line(t_cont *cont, t_point p1, t_point p2, unsigned color);
+void	calc(t_cont *cont);
 
 #endif

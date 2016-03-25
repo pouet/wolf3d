@@ -75,7 +75,7 @@ int				key_func(int key, void *par)
 	}
 	if (draw)
 	{
-		mlx_clear_window(cont->mlx, cont->win);
+//		mlx_clear_window(cont->mlx, cont->win);
 	}
 	return (0);
 }
