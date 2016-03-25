@@ -72,8 +72,8 @@ void	calc(t_cont *cont)
 	while (i < WIN_W)
 	{
 		cont->g.cam.x = 2. * i / WIN_W - 1.;
-		cont->g.raypos.x = cont->g.raypos.x;
-		cont->g.raypos.y = cont->g.raypos.y;
+		cont->g.raypos.x = cont->g.pos.x;
+		cont->g.raypos.y = cont->g.pos.y;
 		cont->g.raydir.x = cont->g.dir.x + cont->g.plane.x * cont->g.cam.x;
 		cont->g.raydir.y = cont->g.dir.y + cont->g.plane.y * cont->g.cam.x;
 		mapx = cont->g.raypos.x;
@@ -154,19 +154,6 @@ int		main(int ac, char **av)
 	cont.g.plane.x = 0;
 	cont.g.plane.y = 0.66;
 
-double olddirx = cont.g.dir.x;
-double oldplanex = cont.g.plane.x;
-	cont.g.dir.x = cont.g.dir.x * cos(-1.6) - cont.g.dir.y * sin(1.6);
-	cont.g.dir.y = olddirx * sin(1.6) + cont.g.dir.y * cos(1.6);
-	cont.g.plane.x = cont.g.plane.x * cos(1.6) - cont.g.plane.y * sin(1.6);
-	cont.g.plane.y = oldplanex * sin(1.6) + cont.g.plane.y * cos(1.6);
-
- olddirx = cont.g.dir.x;
- oldplanex = cont.g.plane.x;
-	cont.g.dir.x = cont.g.dir.x * cos(-1.6) - cont.g.dir.y * sin(1.6);
-	cont.g.dir.y = olddirx * sin(1.6) + cont.g.dir.y * cos(1.6);
-	cont.g.plane.x = cont.g.plane.x * cos(1.6) - cont.g.plane.y * sin(1.6);
-	cont.g.plane.y = oldplanex * sin(1.6) + cont.g.plane.y * cos(1.6);
 	init(&cont);
 	return (0);
 }

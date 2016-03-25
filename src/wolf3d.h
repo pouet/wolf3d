@@ -46,8 +46,8 @@ enum	e_mouse
 
 enum
 {
-	WIN_W = 320,
-	WIN_H = 200
+	WIN_W = 1024,
+	WIN_H = 768
 };
 
 typedef struct	s_point

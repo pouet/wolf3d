@@ -18,17 +18,82 @@
 #include "mlx.h"
 #include "wolf3d.h"
 
+void	turn(t_cont *cont, int key)
+{
+	double	olddirx;
+	double	oldplanex;
+	double	move;
+
+	move = 0.05;
+	if (key == K_RIGHT)
+		move = -move;
+	olddirx = cont->g.dir.x;
+	oldplanex = cont->g.plane.x;
+	cont->g.dir.x = cont->g.dir.x * cos(move) - cont->g.dir.y * sin(move);
+	cont->g.dir.y = olddirx * sin(move) + cont->g.dir.y * cos(move);
+	cont->g.plane.x = cont->g.plane.x * cos(move) - cont->g.plane.y * sin(move);
+	cont->g.plane.y = oldplanex * sin(move) + cont->g.plane.y * cos(move);
+/*	mlx_destroy_image(cont->mlx, cont->img);
+	new_image(cont);
+	calc(cont);
+	mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);*/
+}
+
+extern int map[24][24];
+
+void	move(t_cont *cont, int key)
+{
+	double	move;
+
+	printf("%f - ", cont->g.pos.x);
+	move = 0.25;
+	if (key == K_UP)
+	{
+		if (map[(int)(cont->g.pos.x + cont->g.dir.x * move)][(int)cont->g.pos.y] == 0)
+			cont->g.pos.x += cont->g.dir.x * move;
+		if (map[(int)cont->g.pos.x][(int)(cont->g.pos.y + cont->g.dir.y * move)] == 0)
+			cont->g.pos.y += cont->g.dir.y * move;
+	}
+	else if (key == K_DOWN)
+	{
+		if (map[(int)(cont->g.pos.x - cont->g.dir.x * move)][(int)cont->g.pos.y] == 0)
+			cont->g.pos.x -= cont->g.dir.x * move;
+		if (map[(int)cont->g.pos.x][(int)(cont->g.pos.y - cont->g.dir.y * move)] == 0)
+			cont->g.pos.y -= cont->g.dir.y * move;
+	}
+	printf("%f\n", cont->g.pos.x);
+//	if (map[
+}
+
 int				key_arrow(int key, t_cont *cont)
 {
 	(void)cont;
 	if (key == K_LEFT)
-		;
+		turn(cont, key);
 	else if (key == K_RIGHT)
-		;
+		turn(cont, key);
 	else if (key == K_UP)
-		;
+		move(cont, key);
 	else if (key == K_DOWN)
-		;
+		move(cont, key);
+	mlx_destroy_image(cont->mlx, cont->img);
+	new_image(cont);
+	{
+		static int a;
+		for (int h = 0; h < WIN_H; h++)
+		{
+			for (int w = 0; w < WIN_W; w++)
+			{
+				if (a)
+				put_pixel(cont, w, h, 0x00ac00ca);
+				else
+				put_pixel(cont, w, h, 0x00acca00);
+			}
+		}
+		a = !a;
+	}
+	calc(cont);
+	mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
 	return (1);
 }
 
