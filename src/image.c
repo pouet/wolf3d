@@ -88,6 +88,53 @@ int				mlx_quit(t_cont *cont)
 	return (0);
 }
 
+int				key_press(int key, void *par)
+{
+	t_cont	*cont;
+//printf("+%d\n", key);
+	cont = par;
+	cont->key[key] = 1;
+//	if (cont->key[K_LEFT] || cont->key[K_RIGHT] || cont->key[K_UP] || cont->key[K_DOWN])
+//		key_arrow(key, cont);
+	return (0);
+}
+
+int				key_release(int key, void *par)
+{
+	t_cont	*cont;
+
+//printf("-%d\n", key);
+	cont = par;
+	cont->key[key] = 0;
+	return (0);
+}
+
+int				loop(void *par)
+{
+	t_cont	*cont;
+	int		draw;
+
+	cont = par;
+	draw = 0;
+	if (cont->key[K_ESCAPE])
+		mlx_quit(par);
+	if (cont->key[K_LEFT])
+		draw += key_arrow(K_LEFT, cont);
+	if (cont->key[K_RIGHT])
+		draw += key_arrow(K_RIGHT, cont);
+	if (cont->key[K_UP])
+		draw += key_arrow(K_UP, cont);
+	if (cont->key[K_DOWN])
+		draw += key_arrow(K_DOWN, cont);
+	if (draw)
+	{
+		calc(cont);
+		mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
+	}
+	return (0);
+}
+
+#include "/opt/X11/include/X11/X.h"
 void			init(t_cont *cont)
 {
 	cont->mlx = mlx_init();
@@ -97,7 +144,10 @@ void			init(t_cont *cont)
 	mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
 	mlx_mouse_hook(cont->win, mouse_func, cont);
 	mlx_key_hook(cont->win, key_func, cont);
-	mlx_hook(cont->win, 17, 0, mlx_quit, cont);
+	mlx_hook(cont->win, DestroyNotify, StructureNotifyMask, mlx_quit, cont);
+	mlx_hook(cont->win, KeyPress, KeyPressMask, key_press, cont);
+	mlx_hook(cont->win, KeyRelease, KeyReleaseMask, key_release, cont);
+	mlx_loop_hook(cont->mlx, loop, cont);
 //	mlx_hook(cont->win, 6, 0, cont->fct_mouse, cont);
 	mlx_loop(cont->mlx);
 }

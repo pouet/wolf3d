@@ -50,6 +50,14 @@ enum
 	WIN_H = 768
 };
 
+enum
+{
+	S_NORTH,
+	S_SOUTH,
+	S_EAST,
+	S_WEST
+};
+
 typedef struct	s_point
 {
 	double		x;
@@ -60,6 +68,8 @@ typedef struct	s_point
 typedef struct	s_game
 {
 	int			wallh[WIN_W];
+	int			side[WIN_W];
+	int			valh[WIN_W];
 	t_point		cam;
 	t_point		pos;
 	t_point		dir;
@@ -67,6 +77,17 @@ typedef struct	s_game
 	t_point		raypos;
 	t_point		raydir;
 }				t_game;
+
+typedef struct	s_calc
+{
+	int		mapx;
+	int		mapy;
+	int		stepx;
+	int		stepy;
+	t_point	step;
+	t_point	side;
+	t_point	delta;
+}				t_calc;
 
 typedef struct	s_cont
 {
@@ -79,6 +100,7 @@ typedef struct	s_cont
 	int			bpp;
 	int			szline;
 	int			endian;
+	int			key[0xFF];
 	t_game		g;
 }				t_cont;
 
