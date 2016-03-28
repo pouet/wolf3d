@@ -21,6 +21,8 @@
 
 # define TITLE "wolf3d"
 
+# define FPS 60
+
 enum	e_keys
 {
 	K_ESCAPE = 53,
@@ -52,8 +54,8 @@ enum
 
 enum
 {
-	S_NORTH,
 	S_SOUTH,
+	S_NORTH,
 	S_EAST,
 	S_WEST
 };
@@ -64,12 +66,16 @@ typedef struct	s_point
 	double		y;
 	double		z;
 }				t_point;
-
+//#pragma pack(1)
 typedef struct	s_game
 {
-	int			wallh[WIN_W];
-	int			side[WIN_W];
-	int			valh[WIN_W];
+	unsigned	ticks;
+//	int			wallh[WIN_W];
+//	int			side[WIN_W];
+//	int			valh[WIN_W];
+//	int			tmap_x[WIN_W];
+//	int			tmap_y[WIN_W];
+//	double		perp[WIN_W];
 	t_point		cam;
 	t_point		pos;
 	t_point		dir;
@@ -82,8 +88,8 @@ typedef struct	s_calc
 {
 	int		mapx;
 	int		mapy;
-	int		stepx;
-	int		stepy;
+//	int		stepx;
+//	int		stepy;
 	t_point	step;
 	t_point	side;
 	t_point	delta;

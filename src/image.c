@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <math.h>
 #include <stdio.h>
+#include "SDL.h"
 #include "libft.h"
 #include "mlx.h"
 #include "wolf3d.h"
@@ -109,6 +110,20 @@ int				key_release(int key, void *par)
 	return (0);
 }
 
+void			framewait(t_cont *cont)
+{
+	unsigned	now;
+
+	while (1)
+	{
+		now = SDL_GetTicks() - cont->g.ticks;
+		if (now >= FPS)
+			break ;
+		SDL_Delay(3);
+	}
+	cont->g.ticks = SDL_GetTicks();
+}
+
 int				loop(void *par)
 {
 	t_cont	*cont;
@@ -131,6 +146,7 @@ int				loop(void *par)
 		calc(cont);
 		mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
 	}
+	framewait(cont);
 	return (0);
 }
 
