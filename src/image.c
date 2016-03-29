@@ -144,8 +144,8 @@ int				loop(void *par)
 	if (draw)
 	{
 		calc(cont);
-		mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
 	}
+	mlx_put_image_to_window(cont->mlx, cont->win, cont->img, 0, 0);
 	framewait(cont);
 	return (0);
 }
