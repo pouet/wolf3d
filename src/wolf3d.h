@@ -17,6 +17,10 @@
 # include <fcntl.h>
 # include <math.h>
 # include "libft.h"
+# include "SDL.h"
+
+
+
 # include "mlx.h"
 
 # define TITLE "wolf3d"
@@ -93,6 +97,10 @@ typedef struct	s_calc
 
 typedef struct	s_cont
 {
+	SDL_Window		*sdl_win;
+	SDL_Renderer	*ren;
+	SDL_Texture		*tex;
+
 	void		*mlx;
 	void		*win;
 	void		*img;

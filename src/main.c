@@ -16,9 +16,10 @@
 #include <stdio.h>
 #include "SDL.h"
 #include "libft.h"
-#include "mlx.h"
 #include "wolf3d.h"
+#include "SDL.h"
 
+#include "mlx.h"
 #include "cos_sin.h"
 
 #define PI_3 1.047197551196598
@@ -3020,14 +3021,95 @@ void	calc(t_cont *cont)
 //	draw(cont);
 }
 
+int		init_video(t_cont *cont)
+{
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		ft_putendl_fd(SDL_GetError(), 2);
+		return (-1);
+	}
+	cont->sdl_win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED, WIN_W, WIN_H, 0);
+	if (cont->sdl_win == NULL)
+	{
+		ft_putendl_fd(SDL_GetError(), 2);
+		return (-1);
+	}
+	cont->ren = SDL_CreateRenderer(cont->sdl_win, -1,
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (cont->ren == NULL)
+	{
+		ft_putendl_fd(SDL_GetError(), 2);
+		return (-1);
+	}
+	return (0);
+}
+
+SDL_Texture	*load_bmp(t_cont *cont, char *name)
+{
+	SDL_Surface	*bmp;
+	SDL_Texture	*tex;
+
+	bmp = SDL_LoadBMP(name);
+	if (bmp == NULL)
+	{
+		ft_putendl_fd(SDL_GetError(), 2);
+		exit(EXIT_FAILURE);
+	}
+	tex = SDL_CreateTextureFromSurface(cont->ren, bmp);
+	SDL_FreeSurface(bmp);
+	if (tex == NULL)
+	{
+		ft_putendl_fd(SDL_GetError(), 2);
+		exit(EXIT_FAILURE);
+	}
+	return (tex);
+}
+
+void	quit_video(t_cont *cont)
+{
+	SDL_DestroyRenderer(cont->ren);
+	SDL_DestroyWindow(cont->win);
+	SDL_Quit();
+}
+
+void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
+{
+	SDL_Rect dst;
+
+	dst.x = x;
+	dst.y = y;
+	SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+	SDL_RenderCopy(cont->ren, tex, NULL, &dst);
+}
+
 int		main(int ac, char **av)
 {
 	t_cont	cont;
+	SDL_Event ev;
 
-	SDL_Init(0);
+	ft_bzero(&cont, sizeof(cont));
+
+	if (init_video(&cont) < 0)
+		return (EXIT_FAILURE);
+cont.tex = load_bmp(&cont, "img/wood.bmp");
+SDL_SetRenderDrawColor(cont.ren, 255, 0, 0, 255);
+SDL_RenderClear(cont.ren);
+render_texture(&cont, cont.tex, 100, 200);
+// Equivalent de SDL_Flip
+SDL_RenderPresent(cont.ren);
+	while (1)
+	{
+		while (SDL_PollEvent(&ev))
+		{
+			if (ev.type == SDL_QUIT)
+				return (0);
+		}
+		SDL_Delay(10);
+	}
+
 	(void)ac;
 	(void)av;
-	ft_bzero(&cont, sizeof(cont));
 	cont.g.pos.x = 22;
 	cont.g.pos.y = 12;
 	cont.g.dir.x = -1;
@@ -3038,5 +3120,6 @@ int		main(int ac, char **av)
 	cont.g.eye = 0;
 
 	init(&cont);
+	quit_video(&cont);
 	return (0);
 }
