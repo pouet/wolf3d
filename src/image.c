@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:39:11 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/24 14:01:50 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/30 10:59:35 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,8 @@ int				loop(void *par)
 	return (0);
 }
 
-#include "/opt/X11/include/X11/X.h"
+//#include "/opt/X11/include/X11/X.h"
+#include "X.h"
 void			init(t_cont *cont)
 {
 	cont->mlx = mlx_init();

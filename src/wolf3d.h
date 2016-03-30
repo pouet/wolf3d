@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/24 14:52:43 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/30 15:37:38 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 # define TITLE "wolf3d"
 
-# define FPS 60
+# define FPS 20
 
 enum	e_keys
 {
@@ -70,29 +70,25 @@ typedef struct	s_point
 typedef struct	s_game
 {
 	unsigned	ticks;
-//	int			wallh[WIN_W];
-//	int			side[WIN_W];
-//	int			valh[WIN_W];
-//	int			tmap_x[WIN_W];
-//	int			tmap_y[WIN_W];
-//	double		perp[WIN_W];
 	t_point		cam;
 	t_point		pos;
 	t_point		dir;
 	t_point		plane;
 	t_point		raypos;
 	t_point		raydir;
+	double		eye;
 }				t_game;
 
 typedef struct	s_calc
 {
 	int		mapx;
 	int		mapy;
-//	int		stepx;
-//	int		stepy;
 	t_point	step;
 	t_point	side;
 	t_point	delta;
+	double	perp;
+	int		lineh;
+	double	wallx;
 }				t_calc;
 
 typedef struct	s_cont
