@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 15:29:30 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/31 16:41:21 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include "wolf3d.h"
 #include "SDL.h"
 
-#include "mlx.h"
 #include "cos_sin.h"
 
 #define PI_3 1.047197551196598
@@ -34,50 +33,15 @@ typedef struct	s_sprite
 	int			text;
 }				t_sprite;
 
-#define put_pixel myputpixel
-int myputpixel(t_cont *cont, int x, int y, unsigned col)
+int		put_pixel(t_cont *cont, int x, int y, unsigned col)
 {
-	int pitch, w, h;
-	void *pixels;
 	Uint32 *pix32;
+
 	if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
 		return (0);
-
-	SDL_QueryTexture(cont->tex, NULL, NULL, &w, &h);
-	if (SDL_LockTexture(cont->tex, NULL, &pixels, &pitch) >= 0)
-	{
-	pix32 = pixels;
-	
-//	for (int i = 0; i < w * h; i++)
-	{
-//			*(Uint32 *)((char *)pixels + (y * pitch + x * 4)) = col;
-		pix32[y * w + x] = col;
-	}
-	SDL_UnlockTexture(cont->tex);
-	}
-	else
-		puts(SDL_GetError());
+	pix32 = (Uint32 *)cont->pixels;
+	pix32[y * cont->w + x] = col;
 	return (1);
-/*{
-	int pitch, w, h;
-	void *pixels;
-	Uint32 *pix32;
-
-	SDL_QueryTexture(cont.tex, NULL, NULL, &w, &h);
-	if (SDL_LockTexture(cont.tex, NULL, &pixels, &pitch) >= 0)
-	{
-	pix32 = pixels;
-	
-	for (int i = 0; i < w * h; i++)
-	{
-		pix32[i] = 0xff;
-	}
-
-	SDL_UnlockTexture(cont.tex);
-	}
-	else
-		puts(SDL_GetError());
-}*/
 }
 
 
@@ -2866,125 +2830,14 @@ void	draw_verticalline(t_cont *cont, t_calc *c, int w, int side)
 //	if (side == S_WEST || side == S_EAST || side == S_NORTH)
 	draw_wall(cont, c, w, side);
 	draw_floorceil(cont, c, w, side);
-		if (side == S_NORTH || side == S_SOUTH)
-			wallx = cont->g.raypos.y + perpwalldist * cont->g.raydir.y;
-		else
-			wallx = cont->g.raypos.x + perpwalldist * cont->g.raydir.x;
-		wallx -= floor(wallx);
-	if (0)
-	{
-		if (side == S_NORTH || side == S_SOUTH)
-			wallx = cont->g.raypos.y + perpwalldist * cont->g.raydir.y;
-		else
-			wallx = cont->g.raypos.x + perpwalldist * cont->g.raydir.x;
-		wallx -= floor(wallx);
-
-		int texx = wallx * WALL_SZ;
-		if ((side == S_NORTH || side == S_SOUTH) && cont->g.raydir.x > 0)
-			texx = WALL_SZ - texx - 1;
-		if ((side == S_EAST || side == S_WEST) && cont->g.raydir.y < 0)
-			texx = WALL_SZ - texx - 1;
-		for (int y = p1.y; y < p2.y; y++)
-		{
-			int d = y * 256 - WIN_H * 128 + lineheight * 128;
-			int texy = ((d * WALL_SZ) / lineheight) / 256;
-			if (side == S_WEST)
-			col = *(unsigned *)(walltexture + (((texy) * WALL_SZ + (texx)) * 4));
-			else
-			col = *(unsigned *)(walltexture2 + (((texy) * WALL_SZ + (texx)) * 4));
-			col = ((col & 0xFF0000) >> 16) | ((col & 0xFF00) << 0) | ((col & 0xFF) << 16); 
-//			col = ((col & 0xFF000000) >> 24) | ((col & 0xFF0000) >> 8) |
-//				((col & 0xFF00) << 8) | ((col & 0xFF) << 24); 
-			if (side == S_NORTH)
-			col = *(unsigned *)(walltexture_sansalpha + (((texy) * WALL_SZ + (texx)) * 3));
-			col &= 0x00FFFFFF;
-//			if (side == S_EAST)
-//				col = (col >> 1) & 0x7F7F7F;
-			put_pixel(cont, w, y, col);
-			/*			if (texx < 5)
-						col = 0x00cc00cc;
-						else
-						col = 0x00abcdef;
-						put_pixel(cont, w, y, col);*/
-		}
-		zbuffer[w] = perpwalldist;
-		//		texture(cont, w, p1, p2);
-	}
-//			else
-	if (0)
-	{
-		if (side == S_NORTH)
-			col = 0x0000ff00;
-		else if (side == S_SOUTH)
-			col = 0x000000ff;
-		else if (side == S_WEST)
-			col = 0x00ff0000;
-		else
-			col = 0x000aa00aa;
-		put_line(cont, p1, p2, col);
-	}
-// draw floor
-if (0)
-	{
-		t_point	floorwall;
-
-		if (side == S_SOUTH)// || side == S_NORTH) && cont->g.raydir.x > 0)
-		{
-			floorwall.x = c->mapx;
-			floorwall.y = c->mapy + wallx;
-		}
-		else if (side == S_NORTH)// && cont->g.raydir.x < 0)
-//		else if (side == S_NORTH)
-		{
-			floorwall.x = c->mapx + 1;
-			floorwall.y = c->mapy + wallx;
-		}
-		else if (side == S_EAST)// || side == S_WEST) && cont->g.raydir.y > 0)
-		{
-			floorwall.x = c->mapx + wallx;
-			floorwall.y = c->mapy;
-		}
-		else// if (side == S_WEST)
-		{
-			floorwall.x = c->mapx + wallx;
-			floorwall.y = c->mapy + 1;
-		}
-		double distwall, distplayer, currentdist;
-
-		distwall = perpwalldist;
-		distplayer = 0.;
-		for (int y = p2.y + 0; y < p3.y; y++)
-		{
-			currentdist = WIN_H / (2. * y - WIN_H);
-
-			double weight = (currentdist - distplayer) / (distwall - distplayer);
-
-			t_point curfloor;
-			curfloor.x = weight * floorwall.x + (1 - weight) * cont->g.pos.x;
-			curfloor.y = weight * floorwall.y + (1 - weight) * cont->g.pos.y;
-
-			int floortexx, floortexy;
-			floortexx = (int)(curfloor.x * 512) % 512;
-			floortexy = (int)(curfloor.y * 512) % 512;
-			floortexx = (int)(curfloor.x * WALL_SZ) % WALL_SZ;
-			floortexy = (int)(curfloor.y * WALL_SZ) % WALL_SZ;
-			col = *(unsigned *)(floortext + (((floortexy) * WALL_SZ + (floortexx)) * 3));
-//			floortexx = (int)(curfloor.x * WALL_SZ) % WALL_SZ;
-//			floortexy = (int)(curfloor.y * WALL_SZ) % WALL_SZ;
-//			col = *(unsigned *)(text512 + (((floortexy) * 512 + (floortexx)) * 3));
-//			col = *(unsigned *)(walltexture_sansalpha + (((floortexy) * WALL_SZ + (floortexx)) * 3));
-			col = ((col & 0xFF0000) >> 16) | ((col & 0xFF00) << 0) | ((col & 0xFF) << 16); 
-			col &= 0x00FFFFFF;
-			put_pixel(cont, w, y, col);
-			floortexx = (int)(curfloor.x * WALL_SZ) % WALL_SZ;
-			floortexy = (int)(curfloor.y * WALL_SZ) % WALL_SZ;
-			col = *(unsigned *)(floortext + (((floortexy) * WALL_SZ + (floortexx)) * 3));
-			col &= 0x00FFFFFF;
-			put_pixel(cont, w, WIN_H - y, col);
-		}
-	}
+	
 // draw sprite
 if (0)	{
+	if (side == S_NORTH || side == S_SOUTH)
+		wallx = cont->g.raypos.y + perpwalldist * cont->g.raydir.y;
+	else
+		wallx = cont->g.raypos.x + perpwalldist * cont->g.raydir.x;
+	wallx -= floor(wallx);
 		for (int i = 0; i < NSPRITE; i++)
 		{
 			sprite_order[i] = i;
@@ -3079,11 +2932,11 @@ int		init_video(t_cont *cont)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		exit_sdlerror();
-	cont->sdl_win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
+	cont->win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED, WIN_W, WIN_H, 0);
-	if (cont->sdl_win == NULL)
+	if (cont->win == NULL)
 		exit_sdlerror();
-	cont->ren = SDL_CreateRenderer(cont->sdl_win, -1,
+	cont->ren = SDL_CreateRenderer(cont->win, -1,
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (cont->ren == NULL)
 		exit_sdlerror();
@@ -3160,6 +3013,7 @@ void	init_var(t_cont *cont)
 	cont->state = SDL_GetKeyboardState(NULL);
 	cont->tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
+	SDL_QueryTexture(cont->tex, NULL, NULL, &cont->w, &cont->h);
 }
 
 void		framewait(t_cont *cont)
@@ -3203,7 +3057,11 @@ int		main_loop(t_cont *cont)
 			key_arrow(K_LEFT, cont);
 		if (cont->state[SDL_SCANCODE_RIGHT])
 			key_arrow(K_RIGHT, cont);
-		calc(cont);
+		if (SDL_LockTexture(cont->tex, NULL, (void *)&cont->pixels, &cont->pitch) >= 0)
+		{
+			calc(cont);
+			SDL_UnlockTexture(cont->tex);
+		}
 		// Plaque la texture sur la fenetre
 		render_texture(cont, cont->tex, 0, 0);
 		// Equivalent de SDL_Flip

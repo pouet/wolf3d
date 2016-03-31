@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 15:27:23 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/31 16:44:58 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,12 @@
 
 
 
-# include "mlx.h"
 
 # define TITLE "wolf3d"
 
 enum
 {
-	FPS = 20,
+	FPS = 120,
 	FPS_DFLT = 1000 / FPS
 };
 
@@ -74,7 +73,7 @@ typedef struct	s_point
 	double		y;
 	double		z;
 }				t_point;
-//#pragma pack(1)
+
 typedef struct	s_game
 {
 	unsigned	ticks;
@@ -101,38 +100,29 @@ typedef struct	s_calc
 
 typedef struct	s_cont
 {
-	SDL_Window		*sdl_win;
+	SDL_Window		*win;
 	SDL_Renderer	*ren;
 	SDL_Texture		*tex;
 	const Uint8		*state;
 
-	void		*mlx;
-	void		*win;
-	void		*img;
 	char		*pixels;
+	int			pitch;
 	int			w;
 	int			h;
-	int			bpp;
-	int			szline;
-	int			endian;
-	int			key[0xFF];
+
+
 	t_game		g;
 }				t_cont;
 
-void			new_image(t_cont *cont);
-int				put_pixel(t_cont *cont, int x, int y, unsigned color);
-int				mlx_quit(t_cont *cont);
 int				key_arrow(int key, t_cont *cont);
-int				key_zoom(int key, t_cont *cont);
 int				key_func(int key, void *par);
 int				mouse_func(int button, int x, int y, void *par);
-void			init(t_cont *cont);
 
 
 void			put_line(t_cont *cont, t_point p1, t_point p2, unsigned color);
+
 void	calc(t_cont *cont);
 
-#define put_pixel myputpixel
-int myputpixel(t_cont *cont, int x, int y, unsigned col);
+int 			put_pixel(t_cont *cont, int x, int y, unsigned col);
 
 #endif
