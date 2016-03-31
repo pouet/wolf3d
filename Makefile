@@ -10,11 +10,10 @@
 #                                                                              #
 # **************************************************************************** #
 
-SRC_NAME = $(sort main.c hsv.c cos_sin.c keys.c image.c)
+SRC_NAME = $(sort main.c hsv.c keys.c image.c)
 SRC_PATH = ./src/
 OBJ_PATH = ./obj/
 LIBFT_PATH = ./libft/
-MLX_PATH = ./minilibx/
 SDL_PATH = ./SDL2.framework/Versions/Current
 INC_PATH = ./includes/ $(LIBFT_PATH)includes/ $(MLX_PATH) SDL2.framework/Headers
 OBJ_NAME = $(SRC_NAME:.c=.o)
@@ -24,24 +23,19 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 INC = $(addprefix -I,$(INC_PATH))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -fsanitize=address
+CFLAGS = -Wall -Wextra
 LDFLAGS = $(addprefix -L,$(LIBFT_PATH) $(MLX_PATH) $(SDL_PATH))
-LDLIBS = -lft -lm -lmlx -framework OpenGL -framework AppKit -F . -framework SDL2 -framework Cocoa
+LDLIBS = -lft -lm -F . -framework SDL2 -framework Cocoa
 NAME = wolf3d
 
-.PHONY: all clean fclean re libft mlx
+.PHONY: all clean fclean re libft
 
-all: mlx libft $(NAME)
+all: libft $(NAME)
 
 libft:
 	@printf "/--------------- creating library \e[1;36m$@\e[0m... ----------/\n"
 	@make -C $(LIBFT_PATH)
 	@printf "/---------------- library $@ created... ----------/\n"
-
-mlx:
-	@printf "/---------------- creating library \e[1;36m$@\e[0m... -----------/\n"
-	@make -C $(MLX_PATH)
-	@printf "/----------------- library $@ created... -----------/\n"
 
 $(NAME): $(OBJ)
 	@printf "%-50s" "create executable "$(notdir $@)...

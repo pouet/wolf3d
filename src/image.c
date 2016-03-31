@@ -18,6 +18,17 @@
 #include "libft.h"
 #include "wolf3d.h"
 
+int		put_pixel(t_cont *cont, int x, int y, unsigned col)
+{
+	Uint32 *pix32;
+
+	if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
+		return (0);
+	pix32 = (Uint32 *)cont->pixels;
+	pix32[y * cont->w + x] = col;
+	return (1);
+}
+
 int		iabs(int a)
 {
 	if (a < 0)

@@ -26,8 +26,9 @@
 
 enum
 {
-	FPS = 120,
-	FPS_DFLT = 1000 / FPS
+	FPS = 60,
+	FPS_DFLT = 1000 / FPS,
+	N_TEXTURES = 12
 };
 
 enum	e_keys
@@ -56,7 +57,8 @@ enum	e_mouse
 enum
 {
 	WIN_W = 1024,
-	WIN_H = 768
+	WIN_H = 768,
+	WALL_SZ = 512
 };
 
 enum
@@ -86,23 +88,40 @@ typedef struct	s_game
 	double		eye;
 }				t_game;
 
+#define NSPRITE 19
+typedef struct	s_calcsprite
+{
+	double		zbuffer[WIN_W];
+	int			sprite_order[NSPRITE];
+	double		sprite_dist[NSPRITE];
+}				t_calcsprite;
+
 typedef struct	s_calc
 {
-	int		mapx;
-	int		mapy;
-	t_point	step;
-	t_point	side;
-	t_point	delta;
-	double	perp;
-	int		lineh;
-	double	wallx;
+	SDL_Rect	p0;
+	SDL_Rect	p1;
+	SDL_Rect	p2;
+	SDL_Rect	p3;
+	int			mapx;
+	int			mapy;
+	t_point		step;
+	t_point		side;
+	t_point		delta;
+	double		perp;
+	int			lineh;
+	double		wallx;
+	t_point		flrw;
+	double		weight;
+	t_calcsprite	sprite;
 }				t_calc;
 
 typedef struct	s_cont
 {
 	SDL_Window		*win;
 	SDL_Renderer	*ren;
-	SDL_Texture		*tex;
+	SDL_Texture		*img;
+	SDL_Texture		*tex[N_TEXTURES];
+	unsigned		*pix_tex[N_TEXTURES];
 	const Uint8		*state;
 
 	char		*pixels;
@@ -119,10 +138,10 @@ int				key_func(int key, void *par);
 int				mouse_func(int button, int x, int y, void *par);
 
 
+int				put_pixel(t_cont *cont, int x, int y, unsigned col);
 void			put_line(t_cont *cont, t_point p1, t_point p2, unsigned color);
 
 void	calc(t_cont *cont);
 
-int 			put_pixel(t_cont *cont, int x, int y, unsigned col);
 
 #endif
