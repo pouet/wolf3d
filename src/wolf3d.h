@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/30 15:37:38 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/31 15:27:23 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,11 @@
 
 # define TITLE "wolf3d"
 
-# define FPS 20
+enum
+{
+	FPS = 20,
+	FPS_DFLT = 1000 / FPS
+};
 
 enum	e_keys
 {
@@ -100,6 +104,7 @@ typedef struct	s_cont
 	SDL_Window		*sdl_win;
 	SDL_Renderer	*ren;
 	SDL_Texture		*tex;
+	const Uint8		*state;
 
 	void		*mlx;
 	void		*win;
@@ -126,5 +131,8 @@ void			init(t_cont *cont);
 
 void			put_line(t_cont *cont, t_point p1, t_point p2, unsigned color);
 void	calc(t_cont *cont);
+
+#define put_pixel myputpixel
+int myputpixel(t_cont *cont, int x, int y, unsigned col);
 
 #endif

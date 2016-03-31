@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:32:37 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/24 14:05:17 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/31 15:59:05 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,9 @@ int				key_func(int key, void *par)
 
 	cont = par;
 	draw = 0;
-	if (key == K_ESCAPE)
-		mlx_quit(par);
-	else if (key == K_ENTER)
+//	if (key == K_ESCAPE)
+//		mlx_quit(par);
+	if (key == K_ENTER)
 		;
 	else if (key == K_LEFT || key == K_RIGHT || key == K_UP || key == K_DOWN)
 		draw = key_arrow(key, cont);

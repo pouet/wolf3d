@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/30 15:37:31 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/03/31 15:29:30 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,54 @@ typedef struct	s_sprite
 	double		y;
 	int			text;
 }				t_sprite;
+
+#define put_pixel myputpixel
+int myputpixel(t_cont *cont, int x, int y, unsigned col)
+{
+	int pitch, w, h;
+	void *pixels;
+	Uint32 *pix32;
+	if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
+		return (0);
+
+	SDL_QueryTexture(cont->tex, NULL, NULL, &w, &h);
+	if (SDL_LockTexture(cont->tex, NULL, &pixels, &pitch) >= 0)
+	{
+	pix32 = pixels;
+	
+//	for (int i = 0; i < w * h; i++)
+	{
+//			*(Uint32 *)((char *)pixels + (y * pitch + x * 4)) = col;
+		pix32[y * w + x] = col;
+	}
+	SDL_UnlockTexture(cont->tex);
+	}
+	else
+		puts(SDL_GetError());
+	return (1);
+/*{
+	int pitch, w, h;
+	void *pixels;
+	Uint32 *pix32;
+
+	SDL_QueryTexture(cont.tex, NULL, NULL, &w, &h);
+	if (SDL_LockTexture(cont.tex, NULL, &pixels, &pitch) >= 0)
+	{
+	pix32 = pixels;
+	
+	for (int i = 0; i < w * h; i++)
+	{
+		pix32[i] = 0xff;
+	}
+
+	SDL_UnlockTexture(cont.tex);
+	}
+	else
+		puts(SDL_GetError());
+}*/
+}
+
+
 
 #define NSPRITE 19
 
@@ -3021,28 +3069,48 @@ void	calc(t_cont *cont)
 //	draw(cont);
 }
 
+void	exit_sdlerror(void)
+{
+	ft_putendl_fd(SDL_GetError(), 2);
+	exit(EXIT_FAILURE);
+}
+
 int		init_video(t_cont *cont)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-	{
-		ft_putendl_fd(SDL_GetError(), 2);
-		return (-1);
-	}
+		exit_sdlerror();
 	cont->sdl_win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED, WIN_W, WIN_H, 0);
 	if (cont->sdl_win == NULL)
-	{
-		ft_putendl_fd(SDL_GetError(), 2);
-		return (-1);
-	}
+		exit_sdlerror();
 	cont->ren = SDL_CreateRenderer(cont->sdl_win, -1,
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (cont->ren == NULL)
-	{
-		ft_putendl_fd(SDL_GetError(), 2);
-		return (-1);
-	}
+		exit_sdlerror();
 	return (0);
+}
+
+void		copy_surface_to_texture(SDL_Texture *tex, SDL_Surface *bmp)
+{
+	SDL_Rect	r;
+	void		*pixels;
+	int			pitch;
+
+	SDL_LockTexture(tex, NULL, &pixels, &pitch);
+	r.y = 0;
+	while (r.y < bmp->h)
+	{
+		r.x = 0;
+		while (r.x < bmp->w)
+		{
+			*(Uint32 *)((char *)pixels + (r.y * pitch + r.x * 4)) =
+				*(Uint32 *)((char *)bmp->pixels +
+						(r.y * bmp->pitch + r.x * bmp->format->BytesPerPixel));
+			r.x++;
+		}
+		r.y++;
+	}
+	SDL_UnlockTexture(tex);
 }
 
 SDL_Texture	*load_bmp(t_cont *cont, char *name)
@@ -3052,17 +3120,13 @@ SDL_Texture	*load_bmp(t_cont *cont, char *name)
 
 	bmp = SDL_LoadBMP(name);
 	if (bmp == NULL)
-	{
-		ft_putendl_fd(SDL_GetError(), 2);
-		exit(EXIT_FAILURE);
-	}
-	tex = SDL_CreateTextureFromSurface(cont->ren, bmp);
-	SDL_FreeSurface(bmp);
+		exit_sdlerror();
+	tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
+			SDL_TEXTUREACCESS_STREAMING, bmp->w, bmp->h);
 	if (tex == NULL)
-	{
-		ft_putendl_fd(SDL_GetError(), 2);
-		exit(EXIT_FAILURE);
-	}
+		exit_sdlerror();
+	copy_surface_to_texture(tex, bmp);
+	SDL_FreeSurface(bmp);
 	return (tex);
 }
 
@@ -3083,43 +3147,102 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 	SDL_RenderCopy(cont->ren, tex, NULL, &dst);
 }
 
-int		main(int ac, char **av)
+void	init_var(t_cont *cont)
 {
-	t_cont	cont;
-	SDL_Event ev;
+	cont->g.pos.x = 22;
+	cont->g.pos.y = 12;
+	cont->g.dir.x = -1;
+	cont->g.dir.y = 0;
+	cont->g.plane.x = 0;
+	cont->g.plane.y = 0.66;
+	cont->g.eye = 0;
+	cont->g.ticks = SDL_GetTicks();
+	cont->state = SDL_GetKeyboardState(NULL);
+	cont->tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
+			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
+}
 
-	ft_bzero(&cont, sizeof(cont));
+void		framewait(t_cont *cont)
+{
+	unsigned	now;
 
-	if (init_video(&cont) < 0)
-		return (EXIT_FAILURE);
-cont.tex = load_bmp(&cont, "img/wood.bmp");
-SDL_SetRenderDrawColor(cont.ren, 255, 0, 0, 255);
-SDL_RenderClear(cont.ren);
-render_texture(&cont, cont.tex, 100, 200);
-// Equivalent de SDL_Flip
-SDL_RenderPresent(cont.ren);
 	while (1)
 	{
-		while (SDL_PollEvent(&ev))
-		{
-			if (ev.type == SDL_QUIT)
-				return (0);
-		}
-		SDL_Delay(10);
+		now = SDL_GetTicks() - cont->g.ticks;
+		if (now >= FPS_DFLT)
+			break ;
+		SDL_Delay(3);
 	}
+	cont->g.ticks = SDL_GetTicks();
+}
 
-	(void)ac;
-	(void)av;
-	cont.g.pos.x = 22;
-	cont.g.pos.y = 12;
-	cont.g.dir.x = -1;
-	cont.g.dir.y = 0;
-	cont.g.plane.x = 0;
-	cont.g.plane.y = 0.66;
-	cont.g.ticks = SDL_GetTicks();
-	cont.g.eye = 0;
+int		update_events(void)
+{
+	SDL_Event ev;
 
-	init(&cont);
+	while (SDL_PollEvent(&ev))
+	{
+		if (ev.type == SDL_QUIT)
+			return (1);
+	}
+	return (0);
+}
+
+int		main_loop(t_cont *cont)
+{
+
+	while (1)
+	{
+		if (update_events() || cont->state[SDL_SCANCODE_ESCAPE])
+			break ;
+		if (cont->state[SDL_SCANCODE_UP])
+			key_arrow(K_UP, cont);
+		if (cont->state[SDL_SCANCODE_DOWN])
+			key_arrow(K_DOWN, cont);
+		if (cont->state[SDL_SCANCODE_LEFT])
+			key_arrow(K_LEFT, cont);
+		if (cont->state[SDL_SCANCODE_RIGHT])
+			key_arrow(K_RIGHT, cont);
+		calc(cont);
+		// Plaque la texture sur la fenetre
+		render_texture(cont, cont->tex, 0, 0);
+		// Equivalent de SDL_Flip
+		SDL_RenderPresent(cont->ren);
+		framewait(cont);
+	}
+	return (0);
+}
+
+int		main(void)
+{
+	t_cont	cont;
+
+	ft_bzero(&cont, sizeof(cont));
+	if (init_video(&cont) < 0)
+		return (EXIT_FAILURE);
+	init_var(&cont);
+
+//cont.tex = load_bmp(&cont, "img/wood.bmp");
+//cont.tex = SDL_CreateTexture(cont.ren, SDL_PIXELFORMAT_ARGB8888,
+//			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
+//SDL_SetRenderDrawColor(cont.ren, 255, 0, 0, 255);
+//SDL_RenderClear(cont.ren);
+
+//calc(&cont);
+//for (int i = 0; i < 50; i++)
+//myputpixel(&cont, i, i, 0xcccccc);
+
+//calc(&cont);
+// Plaque la texture sur la fenetre
+//render_texture(&cont, cont.tex, 0, 0);
+// Equivalent de SDL_Flip
+//SDL_RenderPresent(cont.ren);
+
+//const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+//	init(&cont);
+
+	main_loop(&cont);
 	quit_video(&cont);
 	return (0);
 }
