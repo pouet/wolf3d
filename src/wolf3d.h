@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 16:44:58 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 12:26:29 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,37 +21,23 @@
 
 
 
-
 # define TITLE "wolf3d"
 
 enum
 {
 	FPS = 60,
 	FPS_DFLT = 1000 / FPS,
-	N_TEXTURES = 12
+	N_TEXTURES = 13
 };
 
 enum	e_keys
 {
-	K_ESCAPE = 53,
-	K_ENTER = 36,
-	K_SPACE = 49,
-	K_UP = 126,
-	K_DOWN = 125,
-	K_LEFT = 123,
-	K_RIGHT = 124,
-	K_MINUS = 27,
-	K_PLUS = 24,
-	K_ONE = 18,
-	K_TWO = 19
-};
-
-enum	e_mouse
-{
-	M_BLEFT = 1,
-	M_BRIGHT = 2,
-	M_SCROLL_UP = 4,
-	M_SCROLL_DO = 5
+	K_UP,
+	K_DOWN,
+	K_LEFT,
+	K_RIGHT,
+	K_SIDE_L,
+	K_SIDE_R
 };
 
 enum
@@ -98,6 +84,8 @@ typedef struct	s_calcsprite
 
 typedef struct	s_calc
 {
+	int			ntex;
+	int			sztex;
 	SDL_Rect	p0;
 	SDL_Rect	p1;
 	SDL_Rect	p2;
@@ -111,31 +99,31 @@ typedef struct	s_calc
 	int			lineh;
 	double		wallx;
 	t_point		flrw;
+	t_point		curflr;
 	double		weight;
 	t_calcsprite	sprite;
 }				t_calc;
+
+typedef struct	s_texture
+{
+	SDL_Texture		*tex;
+	Uint32			*pixels;
+	int				pitch;
+	int				w;
+	int				h;
+}				t_texture;
 
 typedef struct	s_cont
 {
 	SDL_Window		*win;
 	SDL_Renderer	*ren;
-	SDL_Texture		*img;
-	SDL_Texture		*tex[N_TEXTURES];
-	unsigned		*pix_tex[N_TEXTURES];
+	t_texture		tex[N_TEXTURES];
+	t_texture		img;
 	const Uint8		*state;
-
-	char		*pixels;
-	int			pitch;
-	int			w;
-	int			h;
-
-
 	t_game		g;
 }				t_cont;
 
-int				key_arrow(int key, t_cont *cont);
-int				key_func(int key, void *par);
-int				mouse_func(int button, int x, int y, void *par);
+void			key_arrow(int key, t_cont *cont);
 
 
 int				put_pixel(t_cont *cont, int x, int y, unsigned col);

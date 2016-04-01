@@ -6,11 +6,11 @@
 #    By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/01 10:58:46 by nchrupal          #+#    #+#              #
-#    Updated: 2016/03/30 11:25:24 by nchrupal         ###   ########.fr        #
+#    Updated: 2016/04/01 12:26:46 by nchrupal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRC_NAME = $(sort main.c hsv.c keys.c image.c)
+SRC_NAME = $(sort main.c keys.c image.c)
 SRC_PATH = ./src/
 OBJ_PATH = ./obj/
 LIBFT_PATH = ./libft/

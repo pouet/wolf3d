@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:39:11 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 16:25:33 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 08:28:43 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ int		put_pixel(t_cont *cont, int x, int y, unsigned col)
 
 	if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
 		return (0);
-	pix32 = (Uint32 *)cont->pixels;
-	pix32[y * cont->w + x] = col;
+	pix32 = (Uint32 *)cont->img.pixels;
+	pix32[y * cont->img.w + x] = col;
 	return (1);
 }
 

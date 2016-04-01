@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 16:41:21 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 12:25:59 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,41 +56,35 @@ t_sprite sprite[NSPRITE] =
 	{10.5, 15.8,8},
 };
 
-//unsigned buffer[WIN_H][WIN_W];
-//double zbuffer[WIN_W];
-//int sprite_order[NSPRITE];
-//double sprite_dist[NSPRITE];
-
 #define MAPW 24
 #define MAPH 24
 
-
 int map[MAPW][MAPH]=
 {
-	{8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4},
-	{8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4},
-	{8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6},
-	{8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6},
-	{8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4},
-	{8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6},
-	{8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6},
-	{7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6},
-	{7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6},
-	{7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6},
-	{7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3},
-	{2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3},
-	{2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3},
-	{2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3},
-	{12,0,0,0,0,0,0,0,12,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3},
-	{2,0,0,0,0,0,0,0,2,2,2,12,2,2,2,6,6,0,0,5,0,5,0,5},
-	{2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5},
-	{2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5},
-	{12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5},
-	{2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5},
-	{2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5},
-	{2,2,2,2,12,2,2,2,2,2,2,12,2,2,2,5,5,5,5,5,5,5,5,5}
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 6, 4, 4, 6, 4, 6, 4, 4, 4, 6, 4},
+	{8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+	{8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{8, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+	{8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 6, 6, 6, 0, 6, 4, 6},
+	{8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 6, 0, 0, 0, 0, 0, 6},
+	{7, 7, 7, 7, 0, 7, 7, 7, 7, 0, 8, 0, 8, 0, 8, 0, 8, 4, 0, 4, 0, 6, 0, 6},
+	{7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 0, 0, 0, 0, 0, 6},
+	{7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 0, 0, 0, 0, 4},
+	{7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 6, 0, 6, 0, 6},
+	{7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 4, 6, 0, 6, 6, 6},
+	{7, 7, 7, 7, 0, 7, 7, 7, 7, 8, 8, 4, 0, 6, 8, 4, 8, 3, 3, 3, 0, 3, 3, 3},
+	{2, 2, 2, 2, 0, 2, 2, 2, 2, 4, 6, 4, 0, 0, 6, 0, 6, 3, 0, 0, 0, 0, 0, 3},
+	{2, 2, 0, 0, 0, 0, 0, 2, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3},
+	{2, 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3},
+	{12,0, 0, 0, 0, 0, 0, 0, 12,4, 4 ,4, 4, 4, 6, 0, 6, 3, 3, 0, 0, 0, 3, 3},
+	{2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2 ,12,2, 2, 2, 6, 6, 0, 0, 5, 0, 5, 0, 5},
+	{2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0 ,0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5},
+	{2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 ,0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5},
+	{12,0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5},
+	{2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 ,0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5},
+	{2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0 ,0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5},
+	{2, 2, 2, 2, 12,2 ,2 ,2 ,2, 2, 2 ,12,2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5}
 };
 
 void	calc_val(t_cont *cont, int w, t_calc *c)
@@ -177,19 +171,19 @@ void	draw_wall(t_cont *cont, t_calc *c, int w, int side)
 	unsigned	col;
 	int			y;
 
-	tex.x = c->wallx * WALL_SZ;
+	tex.x = c->wallx * c->sztex;
 	if ((side == S_NORTH || side == S_SOUTH) && cont->g.raydir.x > 0)
-		tex.x = WALL_SZ - tex.x - 1;
+		tex.x = c->sztex - tex.x - 1;
 	if ((side == S_EAST || side == S_WEST) && cont->g.raydir.y < 0)
-		tex.x = WALL_SZ - tex.x - 1;
+		tex.x = c->sztex - tex.x - 1;
 	y = c->p1.y;
 	while (y < c->p2.y)
 	{
-		tex.y = (((y * 256 - WIN_H * 128 + c->lineh * 128) * WALL_SZ) /
+		tex.y = (((y * 256 - WIN_H * 128 + c->lineh * 128) * c->sztex) /
 				c->lineh) / 256;
-		if (tex.x >= 0 && tex.x < WALL_SZ && tex.y >= 0 && tex.y < WALL_SZ)
+		if (tex.x >= 0 && tex.x < c->sztex && tex.y >= 0 && tex.y < c->sztex)
 		{
-			col = cont->pix_tex[map[c->mapx][c->mapy] - 1][tex.y * WALL_SZ + tex.x];
+			col = cont->tex[c->ntex].pixels[tex.y * c->sztex + tex.x];
 			put_pixel(cont, w, y, col);
 		}
 		y++;
@@ -220,11 +214,40 @@ void	calc_floorwall(t_calc *c, int side)
 	}
 }
 
-void	draw_floorceil(t_cont *cont, t_calc *c, int w, int side)
+void	draw_floor(t_cont *cont, t_calc *c, int w, int y)
 {
 	SDL_Rect	tex;
 	unsigned	col;
-	t_point		curfloor;
+	int			sztex;
+
+	sztex = cont->tex[4].w;
+	tex.x = (int)(c->curflr.x * sztex) % sztex;
+	tex.y = (int)(c->curflr.y * sztex) % sztex;
+	if (tex.x >= 0 && tex.x < sztex && tex.y >= 0 && tex.y < sztex)
+	{
+		col = cont->tex[4].pixels[tex.y * sztex + tex.x];
+		put_pixel(cont, w, y, col);
+	}
+}
+
+void	draw_ceil(t_cont *cont, t_calc *c, int w, int y)
+{
+	SDL_Rect	tex;
+	unsigned	col;
+	int			sztex;
+
+	sztex = cont->tex[7].w;
+	tex.x = (int)(c->curflr.x * sztex) % sztex;
+	tex.y = (int)(c->curflr.y * sztex) % sztex;
+	if (tex.x >= 0 && tex.x < sztex && tex.y >= 0 && tex.y < sztex)
+	{
+		col = cont->tex[7].pixels[tex.y * sztex + tex.x];
+		put_pixel(cont, w, WIN_H - y - 1, col);
+	}
+}
+
+void	draw_floorceil(t_cont *cont, t_calc *c, int w, int side)
+{
 	int			y;
 
 	calc_floorwall(c, side);
@@ -234,17 +257,10 @@ void	draw_floorceil(t_cont *cont, t_calc *c, int w, int side)
 		c->weight = (WIN_H / (2. * y - WIN_H)) / c->perp;
 		if (c->weight > 1.)
 			c->weight = 1.;
-		curfloor.x = c->weight * c->flrw.x + (1. - c->weight) * cont->g.pos.x;
-		curfloor.y = c->weight * c->flrw.y + (1. - c->weight) * cont->g.pos.y;
-		tex.x = (int)(curfloor.x * WALL_SZ) % WALL_SZ;
-		tex.y = (int)(curfloor.y * WALL_SZ) % WALL_SZ;
-		if (tex.x >= 0 && tex.x < WALL_SZ && tex.y >= 0 && tex.y < WALL_SZ)
-		{
-			col = cont->pix_tex[3][tex.y * WALL_SZ + tex.x];
-			put_pixel(cont, w, y, col);
-			col = cont->pix_tex[6][tex.y * WALL_SZ + tex.x];
-			put_pixel(cont, w, WIN_H - y, col);
-		}
+		c->curflr.x = c->weight * c->flrw.x + (1. - c->weight) * cont->g.pos.x;
+		c->curflr.y = c->weight * c->flrw.y + (1. - c->weight) * cont->g.pos.y;
+		draw_floor(cont, c, w, y);
+		draw_ceil(cont, c, w, y);
 		y++;
 	}
 }
@@ -252,17 +268,17 @@ void	draw_floorceil(t_cont *cont, t_calc *c, int w, int side)
 void	calc_points(t_calc *c, int w, int lineh)
 {
 	c->p0.x = w;
-	c->p1.x = w;
-	c->p2.y = 0;
-	c->p3.x = w;
 	c->p0.y = 0;
+	c->p1.x = w;
 	c->p1.y = -lineh / 2 + WIN_H / 2;
 	if (c->p1.y < 0)
 		c->p1.y = 0;
+	c->p2.x = w;
 	c->p2.y = lineh / 2 + WIN_H / 2;
 	if (c->p2.y >= WIN_H)
-		c->p2.y = WIN_H - 1;
-	c->p3.y = WIN_H - 1;
+		c->p2.y = WIN_H;
+	c->p3.x = w;
+	c->p3.y = WIN_H;
 }
 
 void	draw_verticalline(t_cont *cont, t_calc *c, int w, int side)
@@ -326,7 +342,7 @@ void	draw_sprite(t_cont *cont, t_calc *c)
 			cont->g.dir.x * cont->g.plane.y);
 
 	init_var_sprite(cont, &c->sprite);
-// tri des sprites
+// TODO: ajouter tri des sprites
 	i = 0;
 	while (i < NSPRITE)
 	{
@@ -343,28 +359,28 @@ void	draw_sprite(t_cont *cont, t_calc *c)
 			start.y = 0;
 		end.y = sph / 2 + WIN_H / 2;
 		if (end.y >= WIN_H)
-			end.y = WIN_H - 1;
+			end.y = WIN_H;
 
 		start.x = -spw / 2 + spscrx;
 		if (start.x < 0)
 			start.x = 0;
 		end.x = spw / 2 + spscrx;
 		if (end.x >= WIN_W)
-			end.x = WIN_W - 1;
+			end.x = WIN_W;
 
 		stripe = start.x;
 		while (stripe < end.x)
 		{
 			if (tr.y > 0 && stripe > 0 && stripe < WIN_W && tr.y < c->sprite.zbuffer[stripe])
 			{
-				tex.x = ((256 * (stripe - (-spw / 2 + spscrx)) * WALL_SZ /
+				tex.x = ((256 * (stripe - (-spw / 2 + spscrx)) * c->sztex /
 							spw)) / 256;
 				y = start.y;
 				while (y < end.y)
 				{
 					tex.y = (((y * 256 - WIN_H * 128 + sph * 128) *
-								WALL_SZ) / sph) / 256;
-					col = cont->pix_tex[sprite[c->sprite.sprite_order[i]].text][tex.y * WALL_SZ + tex.x];
+								c->sztex) / sph) / 256;
+					col = cont->tex[sprite[c->sprite.sprite_order[i]].text + 1].pixels[tex.y * c->sztex + tex.x];
 					col &= 0x00FFFFFF;
 					if (col != 0)
 						put_pixel(cont, stripe, y, col);
@@ -375,65 +391,32 @@ void	draw_sprite(t_cont *cont, t_calc *c)
 		}
 		i++;
 	}
+}
 
-// draw sprite
-	if (0)
+void	draw_gun(t_cont *cont)
+{
+	SDL_Rect	win;
+	unsigned	col;
+	unsigned	col_transparent;
+	int			x;
+	int			y;
+
+	col_transparent = cont->tex[0].pixels[0] & 0x00FFFFFF;
+	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 50;
+	win.y = WIN_H - cont->tex[0].h;
+	y = 0;
+	while (y < cont->tex[0].h)
 	{
-/*		for (int i = 0; i < NSPRITE; i++)
+		x = 0;
+		while (x < cont->tex[0].w)
 		{
-			sprite_order[i] = i;
-			sprite_dist[i] = ((cont->g.pos.x - sprite[i].x) * (cont->g.pos.x - sprite[i].x) + (cont->g.pos.y - sprite[i].y) * (cont->g.pos.y - sprite[i].y));
-		}*/
-
-// fonction de tri des sprites !
-/*
-		for (int i = 0; i < NSPRITE; i++)
-		{
-			sp.x = sprite[c->sprite.sprite_order[i]].x - cont->g.pos.x;
-			sp.y = sprite[c->sprite.sprite_order[i]].y - cont->g.pos.y;
-
-			double spritex = sprite[c->sprite.sprite_order[i]].x - cont->g.pos.x;
-			double spritey = sprite[c->sprite.sprite_order[i]].y - cont->g.pos.y;
-//			invdet = 1. / (cont->g.plane.x * cont->g.dir.y -
-//					cont->g.dir.x * cont->g.plane.y);
-			transform.x = invdet * (cont->g.dir.y * spritex - cont->g.dir.x * spritey);
-			transform.y = invdet * (-cont->g.plane.y * spritex - cont->g.plane.x * spritey);
-
-			int spritescreenx = (WIN_W / 2.) * (1. + transform.x / transform.y);
-			int spriteheight = abs((int)(WIN_H / transform.y));
-
-			start.y = -spriteheight / 2 + WIN_H / 2;
-			if (start.y < 0)
-				start.y = 0;
-			end.y = spriteheight / 2 + WIN_H / 2;
-			if (end.y >= WIN_H)
-				end.y = WIN_H - 1;
-
-			int spritewidth = spriteheight; //fabs(WIN_H / transform.y);
-			start.x = -spritewidth / 2 + spritescreenx;
-			if (start.x < 0)
-				start.x = 0;
-			end.x = spritewidth / 2 + spritescreenx;
-			if (end.x >= WIN_W)
-				end.x = WIN_W - 1;
-			for (int stripe = start.x; stripe < end.x; stripe++)
-			{
-				if (transform.y > 0 && stripe > 0 && stripe < WIN_W && transform.y < zbuffer[stripe])
-				{
-					int texx = ((256 * (stripe - (-spritewidth / 2 + spritescreenx)) * WALL_SZ / spritewidth)) / 256;
-					for (int y = start.y; y < end.y; y++)
-					{
-						int d = y * 256 - WIN_H * 128 + spriteheight * 128;
-						int texy = ((d * WALL_SZ) / spriteheight) / 256;
-						//						col = *(unsigned *)(pilliertex + (((texy) * WALL_SZ + (texx)) * 3));
-						col = cont->pix_tex[sprite[c->sprite.sprite_order[i]].text][texy * WALL_SZ + texx];
-						col &= 0x00FFFFFF;
-						if (col != 0)
-							put_pixel(cont, stripe, y, col);
-					}
-				}
-			}
-		}*/
+			col = cont->tex[0].pixels[y * cont->tex[0].w + x];
+			col &= 0x00FFFFFF;
+			if (col != col_transparent)
+				put_pixel(cont, win.x + x, win.y + y, col);
+			x++;
+		}
+		y++;
 	}
 }
 
@@ -450,11 +433,14 @@ void	calc(t_cont *cont)
 		calc_step(cont, &c);
 		calc_szray(&c, &side);
 		calc_side(&side, &c);
+		c.ntex = map[c.mapx][c.mapy];
+		c.sztex = cont->tex[c.ntex].w;
 		draw_verticalline(cont, &c, w, side);
 		c.sprite.zbuffer[w] = c.perp;
 		w++;
 	}
 //	draw_sprite(cont, &c);
+	draw_gun(cont);
 }
 
 void	exit_sdlerror(void)
@@ -538,18 +524,23 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 void	load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
+		"img/gun2.bmp",
 		"img/eagle.bmp",
-		"img/redbrick.bmp",
-		"img/purplestone.bmp",
-		"img/greystone.bmp",
+		"img/pinkiepie.bmp",
+//		"img/redbrick.bmp",
+		"img/rbdashgun.bmp",
+//		"img/purplestone.bmp",
+		"img/herb.bmp",
+//		"img/greystone.bmp",
 		"img/bluestone.bmp",
 		"img/mossy.bmp",
-		"img/wood.bmp",
+		"img/sky.bmp",
+//		"img/wood.bmp",
 		"img/colorstone.bmp",
 		"img/barrel.bmp",
 		"img/pillar.bmp",
 		"img/greenlight.bmp",
-		"img/rainbowdash.bmp"
+		"img/rainbowdash512.bmp"
 	};
 	int		i;
 
@@ -557,10 +548,23 @@ void	load_textures(t_cont *cont)
 	while (i < N_TEXTURES)
 	{
 //		cont->tex[i] = load_bmp(cont, name[i]);
-		if (i % 2)
-		cont->tex[i] = load_bmp(cont, "img/rainbowdash512.bmp");
-		else
-		cont->tex[i] = load_bmp(cont, "img/pinkiepie.bmp");
+//		if (i % 2)
+//		cont->tex[i] = load_bmp(cont, "img/rainbowdash512.bmp");
+//		else
+//		cont->tex[i] = load_bmp(cont, "img/pinkiepie.bmp");
+
+
+		cont->tex[i].tex = load_bmp(cont, name[i]);
+//		cont->tex[i].tex = load_bmp(cont, "img/pinkiepie.bmp");
+		SDL_QueryTexture(cont->tex[i].tex, NULL, NULL,
+				&cont->tex[i].w, &cont->tex[i].h);
+		if (cont->tex[i].w != cont->tex[i].h)
+		{
+			ft_putendl_fd("image must have same heigth and width !", 2);
+			exit(EXIT_FAILURE);
+		}
+		
+
 // TODO: checker la taille de l'image : SDL_Query et comparer avec WALL_SZ
 		i++;
 	}
@@ -577,9 +581,9 @@ void	init_var(t_cont *cont)
 	cont->g.eye = 0;
 	cont->g.ticks = SDL_GetTicks();
 	cont->state = SDL_GetKeyboardState(NULL);
-	cont->img = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
+	cont->img.tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
-	SDL_QueryTexture(cont->img, NULL, NULL, &cont->w, &cont->h);
+	SDL_QueryTexture(cont->img.tex, NULL, NULL, &cont->img.w, &cont->img.h);
 	load_textures(cont);
 }
 
@@ -611,17 +615,16 @@ int		update_events(void)
 
 void	lock_textures(t_cont *cont)
 {
-	int		pitch;
 	int		i;
 
-	if (SDL_LockTexture(cont->img, NULL, (void **)&cont->pixels,
-				&cont->pitch) < 0)
+	if (SDL_LockTexture(cont->img.tex, NULL, (void **)&cont->img.pixels,
+				&cont->img.pitch) < 0)
 		exit_sdlerror();
 	i = 0;
 	while (i < N_TEXTURES)
 	{
-		if (SDL_LockTexture(cont->tex[i], NULL, (void **)&cont->pix_tex[i],
-					&pitch) < 0)
+		if (SDL_LockTexture(cont->tex[i].tex, NULL,
+					(void **)&cont->tex[i].pixels, &cont->tex[i].pitch) < 0)
 			exit_sdlerror();
 		i++;
 	}
@@ -634,10 +637,26 @@ void	unlock_textures(t_cont *cont)
 	i = 0;
 	while (i < N_TEXTURES)
 	{
-		SDL_UnlockTexture(cont->tex[i]);
+		SDL_UnlockTexture(cont->tex[i].tex);
 		i++;
 	}
-	SDL_UnlockTexture(cont->img);
+	SDL_UnlockTexture(cont->img.tex);
+}
+
+void	do_all(t_cont *cont)
+{
+	if (cont->state[SDL_SCANCODE_UP] || cont->state[SDL_SCANCODE_W])
+		key_arrow(K_UP, cont);
+	if (cont->state[SDL_SCANCODE_DOWN] || cont->state[SDL_SCANCODE_S])
+		key_arrow(K_DOWN, cont);
+	if (cont->state[SDL_SCANCODE_LEFT] || cont->state[SDL_SCANCODE_A])
+		key_arrow(K_LEFT, cont);
+	if (cont->state[SDL_SCANCODE_RIGHT] || cont->state[SDL_SCANCODE_D])
+		key_arrow(K_RIGHT, cont);
+	if (cont->state[SDL_SCANCODE_Q])
+		key_arrow(K_SIDE_L, cont);
+	if (cont->state[SDL_SCANCODE_E])
+		key_arrow(K_SIDE_R, cont);
 }
 
 int		main_loop(t_cont *cont)
@@ -647,19 +666,12 @@ int		main_loop(t_cont *cont)
 	{
 		if (update_events() || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
-		if (cont->state[SDL_SCANCODE_UP])
-			key_arrow(K_UP, cont);
-		if (cont->state[SDL_SCANCODE_DOWN])
-			key_arrow(K_DOWN, cont);
-		if (cont->state[SDL_SCANCODE_LEFT])
-			key_arrow(K_LEFT, cont);
-		if (cont->state[SDL_SCANCODE_RIGHT])
-			key_arrow(K_RIGHT, cont);
+		do_all(cont);
 		lock_textures(cont);
 		calc(cont);
 		unlock_textures(cont);
 		// Plaque la texture sur la fenetre
-		render_texture(cont, cont->img, 0, 0);
+		render_texture(cont, cont->img.tex, 0, 0);
 		// Equivalent de SDL_Flip
 		SDL_RenderPresent(cont->ren);
 		framewait(cont);

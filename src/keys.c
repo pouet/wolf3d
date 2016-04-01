@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:32:37 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/03/31 16:45:22 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 12:20:22 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "libft.h"
+#include "SDL.h"
 #include "wolf3d.h"
 
 void	turn(t_cont *cont, int key)
@@ -22,63 +23,90 @@ void	turn(t_cont *cont, int key)
 	double	olddirx;
 	double	oldplanex;
 	double	move;
+	double	cosmove;
+	double	sinmove;
 
 	move = 0.05;
 	if (key == K_RIGHT)
 		move = -move;
+	cosmove = cos(move);
+	sinmove = sin(move);
 	olddirx = cont->g.dir.x;
 	oldplanex = cont->g.plane.x;
-	cont->g.dir.x = cont->g.dir.x * cos(move) - cont->g.dir.y * sin(move);
-	cont->g.dir.y = olddirx * sin(move) + cont->g.dir.y * cos(move);
-	cont->g.plane.x = cont->g.plane.x * cos(move) - cont->g.plane.y * sin(move);
-	cont->g.plane.y = oldplanex * sin(move) + cont->g.plane.y * cos(move);
+	cont->g.dir.x = cont->g.dir.x * cosmove - cont->g.dir.y * sinmove;
+	cont->g.dir.y = olddirx * sinmove + cont->g.dir.y * cosmove;
+	cont->g.plane.x = cont->g.plane.x * cosmove - cont->g.plane.y * sinmove;
+	cont->g.plane.y = oldplanex * sinmove + cont->g.plane.y * cosmove;
 }
 
 extern int map[24][24];
 
 void	move(t_cont *cont, int key)
 {
-	double	move;
+	SDL_Rect	r;
+	double		move;
 
 	move = 0.25;
 	if (key == K_UP)
 	{
-		if (map[(int)(cont->g.pos.x + cont->g.dir.x * move)][(int)cont->g.pos.y] == 0)
+		r.x = cont->g.pos.x + cont->g.dir.x * move;
+		r.y = cont->g.pos.y;
+		if (map[r.x][r.y] == 0)
 			cont->g.pos.x += cont->g.dir.x * move;
-		if (map[(int)cont->g.pos.x][(int)(cont->g.pos.y + cont->g.dir.y * move)] == 0)
+		r.x = cont->g.pos.x;
+		r.y = cont->g.pos.y + cont->g.dir.y * move;
+		if (map[r.x][r.y] == 0)
 			cont->g.pos.y += cont->g.dir.y * move;
 	}
 	else if (key == K_DOWN)
 	{
-		if (map[(int)(cont->g.pos.x - cont->g.dir.x * move)][(int)cont->g.pos.y] == 0)
+		r.x = cont->g.pos.x - cont->g.dir.x * move;
+		r.y = cont->g.pos.y;
+		if (map[r.x][r.y] == 0)
 			cont->g.pos.x -= cont->g.dir.x * move;
-		if (map[(int)cont->g.pos.x][(int)(cont->g.pos.y - cont->g.dir.y * move)] == 0)
+		r.x = cont->g.pos.x;
+		r.y = cont->g.pos.y - cont->g.dir.y * move;
+		if (map[r.x][r.y] == 0)
 			cont->g.pos.y -= cont->g.dir.y * move;
 	}
 }
 
-int				key_arrow(int key, t_cont *cont)
+void	move_side(t_cont *cont, int key)
 {
-	if (key == K_LEFT)
-		turn(cont, key);
-	else if (key == K_RIGHT)
-		turn(cont, key);
-	else if (key == K_UP)
-		move(cont, key);
-	else if (key == K_DOWN)
-		move(cont, key);
-	if (key == K_LEFT || key == K_RIGHT || key == K_UP || key == K_DOWN)
-		return (1);
-	else
-		return (0);
+	SDL_Rect	r;
+	double		move;
+
+	move = 0.10;
+	if (key == K_SIDE_L)
+	{
+		r.x = cont->g.pos.x;
+		r.y = cont->g.pos.y + cont->g.dir.x * move;
+		if (map[r.x][r.y] == 0)
+			cont->g.pos.y += cont->g.dir.x * move;
+		r.x = cont->g.pos.x - cont->g.dir.y * move;
+		r.y = cont->g.pos.y;
+		if (map[r.x][r.y] == 0)
+			cont->g.pos.x -= cont->g.dir.y * move;
+	}
+	else if (key == K_SIDE_R)
+	{
+		r.x = cont->g.pos.x;
+		r.y = cont->g.pos.y - cont->g.dir.x * move;
+		if (map[r.x][r.y] == 0)
+			cont->g.pos.y -= cont->g.dir.x * move;
+		r.x = cont->g.pos.x + cont->g.dir.y * move;
+		r.y = cont->g.pos.y;
+		if (map[r.x][r.y] == 0)
+			cont->g.pos.x += cont->g.dir.y * move;
+	}
 }
 
-int				key_func(int key, void *par)
+void			key_arrow(int key, t_cont *cont)
 {
-	t_cont	*cont;
-
-	cont = par;
-	if (key == K_LEFT || key == K_RIGHT || key == K_UP || key == K_DOWN)
-		key_arrow(key, cont);
-	return (0);
+	if (key == K_LEFT || key == K_RIGHT)
+		turn(cont, key);
+	else if (key == K_UP || key == K_DOWN)
+		move(cont, key);
+	else if (key == K_SIDE_L || key == K_SIDE_R)
+		move_side(cont, key);
 }
