@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/01 12:25:59 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 15:30:58 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -402,18 +402,19 @@ void	draw_gun(t_cont *cont)
 	int			y;
 
 	col_transparent = cont->tex[0].pixels[0] & 0x00FFFFFF;
-	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 50;
+	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 350;// + 50;
 	win.y = WIN_H - cont->tex[0].h;
 	y = 0;
 	while (y < cont->tex[0].h)
 	{
-		x = 0;
-		while (x < cont->tex[0].w)
+//		cont->frame = 3;
+		x = cont->frame * 156;
+		while (x < (cont->frame + 1) * 156)//cont->tex[0].w / 4)
 		{
 			col = cont->tex[0].pixels[y * cont->tex[0].w + x];
 			col &= 0x00FFFFFF;
 			if (col != col_transparent)
-				put_pixel(cont, win.x + x, win.y + y, col);
+				put_pixel(cont, win.x + x - cont->frame * 156, win.y + y, col);
 			x++;
 		}
 		y++;
@@ -524,7 +525,7 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 void	load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
-		"img/gun2.bmp",
+		"img/gun_gif.bmp",
 		"img/eagle.bmp",
 		"img/pinkiepie.bmp",
 //		"img/redbrick.bmp",
@@ -558,11 +559,11 @@ void	load_textures(t_cont *cont)
 //		cont->tex[i].tex = load_bmp(cont, "img/pinkiepie.bmp");
 		SDL_QueryTexture(cont->tex[i].tex, NULL, NULL,
 				&cont->tex[i].w, &cont->tex[i].h);
-		if (cont->tex[i].w != cont->tex[i].h)
-		{
-			ft_putendl_fd("image must have same heigth and width !", 2);
-			exit(EXIT_FAILURE);
-		}
+//		if (cont->tex[i].w != cont->tex[i].h)
+//		{
+//			ft_putendl_fd("image must have same heigth and width !", 2);
+//			exit(EXIT_FAILURE);
+//		}
 		
 
 // TODO: checker la taille de l'image : SDL_Query et comparer avec WALL_SZ
@@ -657,15 +658,27 @@ void	do_all(t_cont *cont)
 		key_arrow(K_SIDE_L, cont);
 	if (cont->state[SDL_SCANCODE_E])
 		key_arrow(K_SIDE_R, cont);
+	if (cont->state[SDL_SCANCODE_SPACE] && cont->frame == 1)
+	{
+		cont->frame = 2;
+		cont->ticks = 0;
+	}
 }
 
 int		main_loop(t_cont *cont)
 {
-
+cont->frame = 1;
 	while (1)
 	{
 		if (update_events() || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
+		if (cont->frame > 3)
+			cont->frame = 1;
+		else if (cont->frame > 1 && cont->ticks >= 1)
+		{
+			cont->frame++;
+			cont->ticks = 0;
+		}
 		do_all(cont);
 		lock_textures(cont);
 		calc(cont);
@@ -674,6 +687,7 @@ int		main_loop(t_cont *cont)
 		render_texture(cont, cont->img.tex, 0, 0);
 		// Equivalent de SDL_Flip
 		SDL_RenderPresent(cont->ren);
+		cont->ticks++;
 		framewait(cont);
 	}
 	return (0);

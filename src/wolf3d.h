@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/01 12:26:29 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/01 15:24:54 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,8 @@ typedef struct	s_cont
 	t_texture		tex[N_TEXTURES];
 	t_texture		img;
 	const Uint8		*state;
+	int				frame;
+	int				ticks;
 	t_game		g;
 }				t_cont;
 
