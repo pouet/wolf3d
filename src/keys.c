@@ -46,6 +46,7 @@ void	move(t_cont *cont, int key)
 	SDL_Rect	r;
 	double		move;
 
+//	move = 0.15;
 	move = 0.25;
 	if (key == K_UP)
 	{

@@ -349,38 +349,47 @@ void	draw_sprite(t_cont *cont, t_calc *c)
 		sp.x = sprite[c->sprite.sprite_order[i]].x - cont->g.pos.x;
 		sp.y = sprite[c->sprite.sprite_order[i]].y - cont->g.pos.y;
 		tr.x = invdet * (cont->g.dir.y * sp.x - cont->g.dir.x * sp.y);
-		tr.y = invdet * (-cont->g.plane.y * sp.x - cont->g.plane.x * sp.y);
+		tr.y = invdet * (-cont->g.plane.y * sp.x + cont->g.plane.x * sp.y);
 		spscrx = (WIN_W / 2.) * (1. + tr.x / tr.y);
-		sph = abs((int)(WIN_H / tr.y));
-		spw = sph;
 
-		start.y = -sph / 2 + WIN_H / 2;
+// pour agrandir et bouger les sprites
+#define uDiv 1
+#define vDiv 1
+#define vmove 0.00
+int vmovescr = vmove / tr.y;
+
+		sph = abs((int)(WIN_H / tr.y)) / vDiv;
+		spw = abs((int)(WIN_H / tr.y)) / uDiv;
+
+		start.y = -sph / 2 + WIN_H / 2 + vmovescr;
 		if (start.y < 0)
 			start.y = 0;
-		end.y = sph / 2 + WIN_H / 2;
+		end.y = sph / 2 + WIN_H / 2 + vmovescr;
 		if (end.y >= WIN_H)
 			end.y = WIN_H;
 
-		start.x = -spw / 2 + spscrx;
+		start.x = -spw / 2 + spscrx + vmovescr;
 		if (start.x < 0)
 			start.x = 0;
-		end.x = spw / 2 + spscrx;
+		end.x = spw / 2 + spscrx + vmovescr;
 		if (end.x >= WIN_W)
 			end.x = WIN_W;
 
 		stripe = start.x;
 		while (stripe < end.x)
 		{
-			if (tr.y > 0 && stripe > 0 && stripe < WIN_W && tr.y < c->sprite.zbuffer[stripe])
+			if (tr.y >= 0 && stripe >= 0 && stripe < WIN_W && tr.y < c->sprite.zbuffer[stripe])
 			{
-				tex.x = ((256 * (stripe - (-spw / 2 + spscrx)) * c->sztex /
+// TODO: modifier WALL_SZ pour la largeur de la texture
+#define WALL_SZ 64
+				tex.x = ((256 * (stripe - (-spw / 2 + spscrx)) * WALL_SZ /
 							spw)) / 256;
 				y = start.y;
 				while (y < end.y)
 				{
-					tex.y = (((y * 256 - WIN_H * 128 + sph * 128) *
-								c->sztex) / sph) / 256;
-					col = cont->tex[sprite[c->sprite.sprite_order[i]].text + 1].pixels[tex.y * c->sztex + tex.x];
+					tex.y = ((((y - vmovescr) * 256 - WIN_H * 128 + sph * 128) *
+								WALL_SZ) / sph) / 256;
+					col = cont->tex[sprite[c->sprite.sprite_order[i]].text + 1].pixels[tex.y * WALL_SZ + tex.x];
 					col &= 0x00FFFFFF;
 					if (col != 0)
 						put_pixel(cont, stripe, y, col);
@@ -440,7 +449,7 @@ void	calc(t_cont *cont)
 		c.sprite.zbuffer[w] = c.perp;
 		w++;
 	}
-//	draw_sprite(cont, &c);
+	draw_sprite(cont, &c);
 	draw_gun(cont);
 }
 
@@ -459,7 +468,7 @@ int		init_video(t_cont *cont)
 	if (cont->win == NULL)
 		exit_sdlerror();
 	cont->ren = SDL_CreateRenderer(cont->win, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
 	if (cont->ren == NULL)
 		exit_sdlerror();
 	return (0);
@@ -519,7 +528,8 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 	dst.x = x;
 	dst.y = y;
 	SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-	SDL_RenderCopy(cont->ren, tex, NULL, &dst);
+//	SDL_RenderCopy(cont->ren, tex, NULL, &dst);
+	SDL_RenderCopy(cont->ren, tex, NULL, NULL);
 }
 
 void	load_textures(t_cont *cont)
@@ -541,7 +551,8 @@ void	load_textures(t_cont *cont)
 		"img/barrel.bmp",
 		"img/pillar.bmp",
 		"img/greenlight.bmp",
-		"img/rainbowdash512.bmp"
+		"img/rainbowdash512.bmp",
+		"img/skybox.bmp"
 	};
 	int		i;
 
@@ -667,6 +678,7 @@ void	do_all(t_cont *cont)
 
 int		main_loop(t_cont *cont)
 {
+cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
 cont->frame = 1;
 	while (1)
 	{
@@ -681,10 +693,21 @@ cont->frame = 1;
 		}
 		do_all(cont);
 		lock_textures(cont);
+/*{
+	for (int h = 0; h < WIN_H; h++)
+	{
+		for (int w = 0; w < WIN_W; w++)
+		{
+			cont->img.pixels[h * WIN_W + w] = 0;
+		}
+	}
+}*/
 		calc(cont);
 		unlock_textures(cont);
+SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels, WIN_W * sizeof(Uint32));
+SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
 		// Plaque la texture sur la fenetre
-		render_texture(cont, cont->img.tex, 0, 0);
+//		render_texture(cont, cont->img.tex, 0, 0);
 		// Equivalent de SDL_Flip
 		SDL_RenderPresent(cont->ren);
 		cont->ticks++;

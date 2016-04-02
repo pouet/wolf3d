@@ -27,7 +27,7 @@ enum
 {
 	FPS = 60,
 	FPS_DFLT = 1000 / FPS,
-	N_TEXTURES = 13
+	N_TEXTURES = 14
 };
 
 enum	e_keys
@@ -71,7 +71,7 @@ typedef struct	s_game
 	t_point		plane;
 	t_point		raypos;
 	t_point		raydir;
-	double		eye;
+	int			eye;
 }				t_game;
 
 #define NSPRITE 19
@@ -119,6 +119,7 @@ typedef struct	s_cont
 	SDL_Renderer	*ren;
 	t_texture		tex[N_TEXTURES];
 	t_texture		img;
+Uint32 *pixels;
 	const Uint8		*state;
 	int				frame;
 	int				ticks;

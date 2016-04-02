@@ -24,7 +24,8 @@ int		put_pixel(t_cont *cont, int x, int y, unsigned col)
 
 	if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
 		return (0);
-	pix32 = (Uint32 *)cont->img.pixels;
+//	pix32 = (Uint32 *)cont->img.pixels;
+	pix32 = cont->pixels;
 	pix32[y * cont->img.w + x] = col;
 	return (1);
 }
