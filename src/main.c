@@ -30,30 +30,30 @@ typedef struct	s_sprite
 
 t_sprite sprite[NSPRITE] =
 {
-	{20.5, 11.5, 10}, //green light in front of playerstart
+	{20.5, 11.5, 11}, //green light in front of playerstart
 	//green lights in every room
-	{18.5,4.5, 10},
-	{10.0,4.5, 10},
-	{10.0,12.5,10},
-	{3.5, 6.5, 10},
-	{3.5, 20.5,10},
-	{3.5, 14.5,10},
-	{14.5,20.5,10},
+	{18.5,4.5, 11},
+	{10.0,4.5, 11},
+	{10.0,12.5,11},
+	{3.5, 6.5, 11},
+	{3.5, 20.5,11},
+	{3.5, 14.5,11},
+	{14.5,20.5,11},
 
 	//row of pillars in front of wall: fisheye test
-	{18.5, 10.5, 9},
-	{18.5, 11.5, 9},
-	{18.5, 12.5, 9},
+	{18.5, 10.5, 10},
+	{18.5, 11.5, 10},
+	{18.5, 12.5, 10},
 
 	//some barrels around the map
-	{21.5, 1.5, 8},
-	{15.5, 1.5, 8},
-	{16.0, 1.8, 8},
-	{16.2, 1.2, 8},
-	{3.5,  2.5, 8},
-	{9.5, 15.5, 8},
-	{10.0, 15.1,8},
-	{10.5, 15.8,8},
+	{21.5, 1.5, 9},
+	{15.5, 1.5, 9},
+	{16.0, 1.8, 9},
+	{16.2, 1.2, 9},
+	{3.5,  2.5, 9},
+	{9.5, 15.5, 9},
+	{10.0, 15.1,9},
+	{10.5, 15.8,9},
 };
 
 #define MAPW 24
@@ -302,100 +302,114 @@ void	draw_verticalline(t_cont *cont, t_calc *c, int w, int side)
 	draw_floorceil(cont, c, w, side);
 }
 
-void	init_var_sprite(t_cont *cont, t_calcsprite *c)
+void	init_var_sprite(t_cont *cont, t_calc *c)
 {
 	t_point		pos;
 	int			i;
 
+	c->invdet = 1. / (cont->g.plane.x * cont->g.dir.y -
+			cont->g.dir.x * cont->g.plane.y);
 	pos = cont->g.pos;
 	i = 0;
 	while (i < NSPRITE)
 	{
-		c->sprite_order[i] = i;
-		c->sprite_dist[i] =
+		c->order[i].order = i;
+		c->order[i].dist =
 			((pos.x - sprite[i].x) * (pos.x - sprite[i].x) +
 			 (pos.y - sprite[i].y) * (pos.y - sprite[i].y));
 		i++;
 	}
 }
 
-void	draw_sprite(t_cont *cont, t_calc *c)
+void	calc_var_sprite(t_cont *cont, t_calc *c, int i)
 {
-	unsigned	col;
-//	t_point		transform;
-	t_point		sp;
-	t_point		tr;
-	int			i;
-	int			y;
-	double		invdet;
-	t_point start, end;
-
-	int			spscrx;
-//	SDL_Rect	sp;
-	int			sph;
-	int			spw;
-
-	int			stripe;
-	SDL_Rect	tex;
-
-	invdet = 1. / (cont->g.plane.x * cont->g.dir.y -
-			cont->g.dir.x * cont->g.plane.y);
-
-	init_var_sprite(cont, &c->sprite);
-// TODO: ajouter tri des sprites
-	i = 0;
-	while (i < NSPRITE)
-	{
-		sp.x = sprite[c->sprite.sprite_order[i]].x - cont->g.pos.x;
-		sp.y = sprite[c->sprite.sprite_order[i]].y - cont->g.pos.y;
-		tr.x = invdet * (cont->g.dir.y * sp.x - cont->g.dir.x * sp.y);
-		tr.y = invdet * (-cont->g.plane.y * sp.x + cont->g.plane.x * sp.y);
-		spscrx = (WIN_W / 2.) * (1. + tr.x / tr.y);
+	c->sp.x = sprite[c->order[i].order].x - cont->g.pos.x;
+	c->sp.y = sprite[c->order[i].order].y - cont->g.pos.y;
+	c->tr.x = c->invdet * (cont->g.dir.y * c->sp.x - cont->g.dir.x * c->sp.y);
+	c->tr.y = c->invdet * (-cont->g.plane.y * c->sp.x + cont->g.plane.x *
+			c->sp.y);
+	c->spscrx = (WIN_W / 2.) * (1. + c->tr.x / c->tr.y);
+}
 
 // pour agrandir et bouger les sprites
 #define uDiv 1
 #define vDiv 1
 #define vmove 0.00
-int vmovescr = vmove / tr.y;
+void	calc_points_sprite(t_calc *c)
+{
+	c->vmovescr = vmove / c->tr.y;
+	c->sph = abs((int)(WIN_H / c->tr.y)) / vDiv;
+	c->spw = abs((int)(WIN_H / c->tr.y)) / uDiv;
+	c->start.y = -c->sph / 2 + WIN_H / 2 + c->vmovescr;
+	if (c->start.y < 0)
+		c->start.y = 0;
+	c->end.y = c->sph / 2 + WIN_H / 2 + c->vmovescr;
+	if (c->end.y >= WIN_H)
+		c->end.y = WIN_H;
 
-		sph = abs((int)(WIN_H / tr.y)) / vDiv;
-		spw = abs((int)(WIN_H / tr.y)) / uDiv;
+	c->start.x = -c->spw / 2 + c->spscrx + c->vmovescr;
+	if (c->start.x < 0)
+		c->start.x = 0;
+	c->end.x = c->spw / 2 + c->spscrx + c->vmovescr;
+	if (c->end.x >= WIN_W)
+		c->end.x = WIN_W;
+}
 
-		start.y = -sph / 2 + WIN_H / 2 + vmovescr;
-		if (start.y < 0)
-			start.y = 0;
-		end.y = sph / 2 + WIN_H / 2 + vmovescr;
-		if (end.y >= WIN_H)
-			end.y = WIN_H;
+int		sort_sprite(const void *p1, const void *p2)
+{
+	const t_sortsp	*sp1 = p1;
+	const t_sortsp	*sp2 = p2;
 
-		start.x = -spw / 2 + spscrx + vmovescr;
-		if (start.x < 0)
-			start.x = 0;
-		end.x = spw / 2 + spscrx + vmovescr;
-		if (end.x >= WIN_W)
-			end.x = WIN_W;
+	if (sp1->dist < sp2->dist)
+		return (1);
+	else if (sp1->dist > sp2->dist)
+		return (-1);
+	else
+		return (0);
+}
 
-		stripe = start.x;
-		while (stripe < end.x)
+void	render_sprite(t_cont *cont, t_calc *c, int i, int stripe)
+{
+	SDL_Rect	tex;
+	unsigned	col;
+	int			y;
+	int			w;
+
+	w = cont->tex[sprite[c->order[i].order].text].w;
+	tex.x = ((256 * (stripe - (-c->spw / 2 + c->spscrx)) * w /
+				c->spw)) / 256;
+	y = c->start.y;
+	while (y < c->end.y)
+	{
+		tex.y = ((((y - c->vmovescr) * 256 - WIN_H * 128 + c->sph * 128) *
+					w) / c->sph) / 256;
+		col = cont->tex[sprite[c->order[i].order].text].pixels[tex.y *
+			w + tex.x];
+		col &= 0x00FFFFFF;
+		if (col != 0)
+			put_pixel(cont, stripe, y, col);
+		y++;
+	}
+}
+
+void	draw_sprite(t_cont *cont, t_calc *c)
+{
+	int			i;
+	int			stripe;
+
+	init_var_sprite(cont, c);
+	ft_qsort(c->order, NSPRITE, sizeof(c->order[0]), sort_sprite);
+	i = 0;
+	while (i < NSPRITE)
+	{
+		calc_var_sprite(cont, c, i);
+		calc_points_sprite(c);
+		stripe = c->start.x;
+		while (stripe < c->end.x)
 		{
-			if (tr.y >= 0 && stripe >= 0 && stripe < WIN_W && tr.y < c->sprite.zbuffer[stripe])
-			{
-// TODO: modifier WALL_SZ pour la largeur de la texture
-#define WALL_SZ 64
-				tex.x = ((256 * (stripe - (-spw / 2 + spscrx)) * WALL_SZ /
-							spw)) / 256;
-				y = start.y;
-				while (y < end.y)
-				{
-					tex.y = ((((y - vmovescr) * 256 - WIN_H * 128 + sph * 128) *
-								WALL_SZ) / sph) / 256;
-					col = cont->tex[sprite[c->sprite.sprite_order[i]].text + 1].pixels[tex.y * WALL_SZ + tex.x];
-					col &= 0x00FFFFFF;
-					if (col != 0)
-						put_pixel(cont, stripe, y, col);
-					y++;
-				}
-			}
+			if (c->tr.y >= 0 && stripe >= 0 && stripe < WIN_W &&
+					c->tr.y < c->zbuffer[stripe])
+				render_sprite(cont, c, i, stripe);
 			stripe++;
 		}
 		i++;
@@ -446,7 +460,7 @@ void	calc(t_cont *cont)
 		c.ntex = map[c.mapx][c.mapy];
 		c.sztex = cont->tex[c.ntex].w;
 		draw_verticalline(cont, &c, w, side);
-		c.sprite.zbuffer[w] = c.perp;
+		c.zbuffer[w] = c.perp;
 		w++;
 	}
 	draw_sprite(cont, &c);
@@ -499,19 +513,21 @@ void		copy_surface_to_texture(SDL_Texture *tex, SDL_Surface *bmp)
 
 SDL_Texture	*load_bmp(t_cont *cont, char *name)
 {
-	SDL_Surface	*bmp;
+//	SDL_Surface	*bmp;
 	SDL_Texture	*tex;
 
 	bmp = SDL_LoadBMP(name);
 	if (bmp == NULL)
 		exit_sdlerror();
+	return (bmp);
+	/*
 	tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, bmp->w, bmp->h);
 	if (tex == NULL)
 		exit_sdlerror();
 	copy_surface_to_texture(tex, bmp);
 	SDL_FreeSurface(bmp);
-	return (tex);
+	return (tex);*/
 }
 
 void	quit_video(t_cont *cont)
@@ -537,21 +553,22 @@ void	load_textures(t_cont *cont)
 	static char	*name[N_TEXTURES] = {
 		"img/gun_gif.bmp",
 		"img/eagle.bmp",
-		"img/pinkiepie.bmp",
-//		"img/redbrick.bmp",
-		"img/rbdashgun.bmp",
-//		"img/purplestone.bmp",
-		"img/herb.bmp",
-//		"img/greystone.bmp",
+//		"img/pinkiepie.bmp",
+		"img/redbrick.bmp",
+//		"img/rbdashgun.bmp",
+		"img/purplestone.bmp",
+//		"img/herb.bmp",
+		"img/greystone.bmp",
 		"img/bluestone.bmp",
 		"img/mossy.bmp",
-		"img/sky.bmp",
-//		"img/wood.bmp",
+//		"img/sky.bmp",
+		"img/wood.bmp",
 		"img/colorstone.bmp",
 		"img/barrel.bmp",
 		"img/pillar.bmp",
 		"img/greenlight.bmp",
-		"img/rainbowdash512.bmp",
+		"img/eagle.bmp",
+//		"img/rainbowdash512.bmp",
 		"img/skybox.bmp"
 	};
 	int		i;
@@ -682,6 +699,7 @@ cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
 cont->frame = 1;
 	while (1)
 	{
+		SDL_RenderClear(cont->ren);
 		if (update_events() || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
 		if (cont->frame > 3)
@@ -704,10 +722,11 @@ cont->frame = 1;
 }*/
 		calc(cont);
 		unlock_textures(cont);
-SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels, WIN_W * sizeof(Uint32));
+SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels, cont->img.pitch);
 SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
 		// Plaque la texture sur la fenetre
 //		render_texture(cont, cont->img.tex, 0, 0);
+//		SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
 		// Equivalent de SDL_Flip
 		SDL_RenderPresent(cont->ren);
 		cont->ticks++;

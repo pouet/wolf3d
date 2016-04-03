@@ -77,10 +77,9 @@ typedef struct	s_game
 #define NSPRITE 19
 typedef struct	s_calcsprite
 {
-	double		zbuffer[WIN_W];
-	int			sprite_order[NSPRITE];
-	double		sprite_dist[NSPRITE];
-}				t_calcsprite;
+	int			order;
+	double		dist;
+}				t_sortsp;
 
 typedef struct	s_calc
 {
@@ -92,7 +91,7 @@ typedef struct	s_calc
 	SDL_Rect	p3;
 	int			mapx;
 	int			mapy;
-	t_point		step;
+	SDL_Rect	step;
 	t_point		side;
 	t_point		delta;
 	double		perp;
@@ -101,7 +100,17 @@ typedef struct	s_calc
 	t_point		flrw;
 	t_point		curflr;
 	double		weight;
-	t_calcsprite	sprite;
+	t_sortsp	order[NSPRITE];
+	double		zbuffer[WIN_W];
+	t_point		sp;
+	t_point		tr;
+	int			sph;
+	int			spw;
+	int			vmovescr;
+	double		invdet;
+	int			spscrx;
+	SDL_Rect	start;
+	SDL_Rect	end;
 }				t_calc;
 
 typedef struct	s_texture
@@ -118,8 +127,9 @@ typedef struct	s_cont
 	SDL_Window		*win;
 	SDL_Renderer	*ren;
 	t_texture		tex[N_TEXTURES];
+	SDL_Surface		sfc[N_TEXTURES];
 	t_texture		img;
-Uint32 *pixels;
+	Uint32			*pixels;
 	const Uint8		*state;
 	int				frame;
 	int				ticks;

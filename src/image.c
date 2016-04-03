@@ -26,7 +26,7 @@ int		put_pixel(t_cont *cont, int x, int y, unsigned col)
 		return (0);
 //	pix32 = (Uint32 *)cont->img.pixels;
 	pix32 = cont->pixels;
-	pix32[y * cont->img.w + x] = col;
+	pix32[y * WIN_W + x] = col;
 	return (1);
 }
 
