@@ -27,7 +27,8 @@ enum
 {
 	FPS = 60,
 	FPS_DFLT = 1000 / FPS,
-	N_TEXTURES = 14
+	N_TEXTURES = 14,
+	N_ANIM = 2
 };
 
 enum	e_keys
@@ -122,11 +123,40 @@ typedef struct	s_texture
 	int				h;
 }				t_texture;
 
+/*
+** r.w, r.h => width, height of the texture
+** w_one_frame => width one frame
+** n_frame => number of frame in animation
+** replay =>	-1: infinite
+**				0: print 1rst frame
+**				>0: replay n time
+** time => time between each frame (multiple of FPS_DFLT)
+** ticks => actual time since start
+** frame => current frame
+** started => ... need help ?
+*/
+
+typedef struct	s_anim
+{
+	t_texture	tex;
+	int			w;
+	int			h;
+	int			w_one_frame;
+	int			n_frame;
+	int			replay;
+	int			time;
+	int			ticks;
+	int			frame;
+	int			started;
+}				t_anim;
+
 typedef struct	s_cont
 {
 	SDL_Window		*win;
 	SDL_Renderer	*ren;
 	t_texture		tex[N_TEXTURES];
+	t_anim			gun[N_ANIM];
+	int				actual_gun;
 	t_texture		img;
 	Uint32			*pixels;
 	const Uint8		*state;

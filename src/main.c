@@ -87,6 +87,35 @@ int map[MAPW][MAPH]=
 	{2, 2, 2, 2, 12,2 ,2 ,2 ,2, 2, 2 ,12,2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5}
 };
 
+void	start_anim(t_anim *anim)
+{
+	anim->ticks = 0;
+	if (anim->replay == 0)
+		anim->frame = 1;
+	else
+		anim->frame = 0;
+	anim->started = 1;
+}
+
+void	update_anim(t_anim *anim)
+{
+	if (anim->started)
+	{
+		anim->ticks++;
+		if (anim->ticks >= anim->time)
+		{
+			anim->frame++;
+			if (anim->frame >= anim->n_frame)
+			{
+				anim->frame = 0;
+				if (anim->replay == 0)
+					anim->started = 0;
+			}
+			anim->ticks = 0;
+		}
+	}
+}
+
 void	calc_val(t_cont *cont, int w, t_calc *c)
 {
 	cont->g.cam.x = 2. * w / WIN_W - 1.;
@@ -420,24 +449,30 @@ void	draw_gun(t_cont *cont)
 {
 	SDL_Rect	win;
 	unsigned	col;
-	unsigned	col_transparent;
+	unsigned	alpha;
 	int			x;
 	int			y;
+	t_anim		*gun;
 
-	col_transparent = cont->tex[0].pixels[0] & 0x00FFFFFF;
-	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 350;// + 50;
-	win.y = WIN_H - cont->tex[0].h;
+	gun = &cont->gun[cont->actual_gun];
+	alpha = gun->tex.pixels[0] & 0x00FFFFFF;
+//	alpha = cont->tex[0].pixels[0] & 0x00FFFFFF;
+	win.x = WIN_W / 2 - gun->w_one_frame / 2;// + 350;// + 50;
+	win.y = WIN_H - gun->h;
+//	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 350;// + 50;
+//	win.y = WIN_H - cont->tex[0].h;
 	y = 0;
-	while (y < cont->tex[0].h)
+	while (y < gun->h)
 	{
-//		cont->frame = 3;
-		x = cont->frame * 176;
-		while (x < (cont->frame + 1) * 176)//cont->tex[0].w / 4)
+		x = gun->frame * (gun->w / gun->n_frame);
+		while (x < (gun->frame + 1) * gun->w_one_frame)
 		{
-			col = cont->tex[0].pixels[y * cont->tex[0].w + x];
+			col = gun->tex.pixels[y * gun->w + x];
 			col &= 0x00FFFFFF;
-			if (col != col_transparent)
-				put_pixel(cont, win.x + x - cont->frame * 176, win.y + y, col);
+			if (col != alpha)
+				put_pixel(cont,
+						win.x + x - gun->frame * (gun->w / gun->n_frame),
+						win.y + y, col);
 			x++;
 		}
 		y++;
@@ -551,6 +586,35 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 	SDL_RenderCopy(cont->ren, tex, NULL, NULL);
 }
 
+void	load_animantions(t_cont *cont)
+{
+	static char	*name[N_ANIM] = {
+		"img/fusil_a_pompe.bmp",
+		"img/lance_roquette.bmp",
+	};
+	static t_anim	anims[N_ANIM] = {
+		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
+		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 }
+	};
+	int		i;
+
+	i = 0;
+	while (i < N_ANIM)
+	{
+		cont->gun[i].tex.tex = load_bmp(cont, name[i]);
+		SDL_QueryTexture(cont->gun[i].tex.tex, NULL, NULL,
+				&cont->gun[i].w, &cont->gun[i].h);
+		cont->gun[i].tex.w = cont->gun[i].w;
+		cont->gun[i].tex.h = cont->gun[i].h;
+		cont->gun[i].n_frame = anims[i].n_frame;
+		cont->gun[i].replay = anims[i].replay;
+		cont->gun[i].time = anims[i].time;
+		cont->gun[i].w_one_frame = cont->gun[i].w / cont->gun[i].n_frame;
+		cont->gun[i].started = anims[i].started;
+		i++;
+	}
+}
+
 void	load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
@@ -581,25 +645,9 @@ void	load_textures(t_cont *cont)
 	i = 0;
 	while (i < N_TEXTURES)
 	{
-//		cont->tex[i] = load_bmp(cont, name[i]);
-//		if (i % 2)
-//		cont->tex[i] = load_bmp(cont, "img/rainbowdash512.bmp");
-//		else
-//		cont->tex[i] = load_bmp(cont, "img/pinkiepie.bmp");
-
-
 		cont->tex[i].tex = load_bmp(cont, name[i]);
-//		cont->tex[i].tex = load_bmp(cont, "img/pinkiepie.bmp");
 		SDL_QueryTexture(cont->tex[i].tex, NULL, NULL,
 				&cont->tex[i].w, &cont->tex[i].h);
-//		if (cont->tex[i].w != cont->tex[i].h)
-//		{
-//			ft_putendl_fd("image must have same heigth and width !", 2);
-//			exit(EXIT_FAILURE);
-//		}
-		
-
-// TODO: checker la taille de l'image : SDL_Query et comparer avec WALL_SZ
 		i++;
 	}
 }
@@ -619,6 +667,7 @@ void	init_var(t_cont *cont)
 			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
 	SDL_QueryTexture(cont->img.tex, NULL, NULL, &cont->img.w, &cont->img.h);
 	load_textures(cont);
+	load_animantions(cont);
 }
 
 void		framewait(t_cont *cont)
@@ -633,6 +682,7 @@ void		framewait(t_cont *cont)
 		SDL_Delay(3);
 	}
 	cont->g.ticks = SDL_GetTicks();
+	cont->ticks++;
 }
 
 int		update_events(t_cont *cont)
@@ -643,6 +693,17 @@ int		update_events(t_cont *cont)
 	{
 		if (ev.type == SDL_QUIT)
 			return (1);
+		else if (ev.type == SDL_MOUSEWHEEL)
+		{
+			if (ev.wheel.y < 0)
+			{
+				cont->actual_gun = cont->actual_gun - 1;
+				if (cont->actual_gun < 0)
+					cont->actual_gun = N_ANIM - 1;
+			}
+			else if (ev.wheel.y > 0)
+				cont->actual_gun = (cont->actual_gun + 1) % N_ANIM;
+		}
 	}
 	cont->mouseb = SDL_GetRelativeMouseState(&cont->mouse.x, &cont->mouse.y);
 	return (0);
@@ -663,6 +724,14 @@ void	lock_textures(t_cont *cont)
 			exit_sdlerror();
 		i++;
 	}
+	i = 0;
+	while (i < N_ANIM)
+	{
+		if (SDL_LockTexture(cont->gun[i].tex.tex, NULL,
+					(void **)&cont->gun[i].tex.pixels, &cont->gun[i].tex.pitch) < 0)
+			exit_sdlerror();
+		i++;
+	}
 }
 
 void	unlock_textures(t_cont *cont)
@@ -675,6 +744,12 @@ void	unlock_textures(t_cont *cont)
 		SDL_UnlockTexture(cont->tex[i].tex);
 		i++;
 	}
+	i = 0;
+	while (i < N_ANIM)
+	{
+		SDL_UnlockTexture(cont->gun[i].tex.tex);
+		i++;
+	}
 	SDL_UnlockTexture(cont->img.tex);
 }
 
@@ -683,34 +758,22 @@ void	do_mousemotion(t_cont *cont)
 	int		delta;
 	int		acceleration = 10;
 
-/*	if (cont->mouse.x > cont->oldmouse.x + WIN_W / 2)
-		delta = -(((WIN_W - 100 - 1) - cont->mouse.x) + (cont->oldmouse.x - 100));
-	else if (cont->mouse.x < cont->oldmouse.x - WIN_W / 2)
-		delta = (cont->mouse.x - 100) + ((WIN_W - 100 - 1) - cont->oldmouse.x);
-	else
-		delta = cont->mouse.x - cont->oldmouse.x;*/
 	delta = cont->mouse.x;
 	if (delta < -20)
 	{
-//		printf("-: %d %d %d\n", delta, cont->mouse.x, cont->oldmouse.x);
-		while (delta < 0)
+		while (delta < -10)
 		{
 			turn(cont, K_LEFT, 0.01);
-//			key_arrow(K_LEFT, cont);
 			delta += acceleration;
 		}
-//		cont->oldmouse.x = cont->mouse.x;
 	}
 	else if (delta > 20)
 	{
-//		printf("+: %d %d %d\n", delta, cont->mouse.x, cont->oldmouse.x);
-		while (delta > 0)
+		while (delta > 10)
 		{
 			turn(cont, K_RIGHT, 0.01);
-//			key_arrow(K_RIGHT, cont);
 			delta -= acceleration;
 		}
-//		cont->oldmouse.x = cont->mouse.x;
 	}
 }
 
@@ -737,11 +800,13 @@ void	do_all(t_cont *cont)
 			SDL_SetWindowFullscreen(cont->win, SDL_WINDOW_FULLSCREEN);
 		cont->full = !cont->full;
 	}
-	if ((cont->state[SDL_SCANCODE_SPACE] || (cont->mouseb & SDL_BUTTON(3))) &&
-			cont->frame == 0)
+	if ((cont->state[SDL_SCANCODE_SPACE] || (cont->mouseb & SDL_BUTTON(1))) &&
+			cont->gun[cont->actual_gun].frame == 0)
+//			cont->frame == 0)
 	{
-		cont->frame = 1;
-		cont->ticks = 0;
+		start_anim(&cont->gun[cont->actual_gun]);
+//		cont->frame = 1;
+//		cont->ticks = 0;
 	}
 }
 
@@ -750,28 +815,24 @@ int		main_loop(t_cont *cont)
 cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
 	while (1)
 	{
-//		SDL_RenderClear(cont->ren);
 		if (update_events(cont) || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
-		if (cont->frame > 3)
-			cont->frame = 0;
-		else if (cont->frame > 0 && cont->ticks > 1)
-		{
-			cont->frame++;
-			cont->ticks = 0;
-		}
+		update_anim(&cont->gun[cont->actual_gun]);
+//		if (cont->frame >= NBANIM)
+//			cont->frame = 0;
+//		else if (cont->frame > 0 && cont->ticks > 1)
+//		{
+//			cont->frame++;
+//			cont->ticks = 0;
+//		}
 		do_all(cont);
 		lock_textures(cont);
 		calc(cont);
 		unlock_textures(cont);
-SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels, cont->img.pitch);
-SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
-		// Plaque la texture sur la fenetre
-//		render_texture(cont, cont->img.tex, 0, 0);
-//		SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
-		// Equivalent de SDL_Flip
+		SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels,
+				cont->img.pitch);
+		SDL_RenderCopy(cont->ren, cont->img.tex, NULL, NULL);
 		SDL_RenderPresent(cont->ren);
-		cont->ticks++;
 		framewait(cont);
 	}
 	return (0);
