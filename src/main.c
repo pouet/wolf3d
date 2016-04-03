@@ -431,13 +431,13 @@ void	draw_gun(t_cont *cont)
 	while (y < cont->tex[0].h)
 	{
 //		cont->frame = 3;
-		x = cont->frame * 156;
-		while (x < (cont->frame + 1) * 156)//cont->tex[0].w / 4)
+		x = cont->frame * 176;
+		while (x < (cont->frame + 1) * 176)//cont->tex[0].w / 4)
 		{
 			col = cont->tex[0].pixels[y * cont->tex[0].w + x];
 			col &= 0x00FFFFFF;
 			if (col != col_transparent)
-				put_pixel(cont, win.x + x - cont->frame * 156, win.y + y, col);
+				put_pixel(cont, win.x + x - cont->frame * 176, win.y + y, col);
 			x++;
 		}
 		y++;
@@ -485,6 +485,11 @@ int		init_video(t_cont *cont)
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
 	if (cont->ren == NULL)
 		exit_sdlerror();
+	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1",
+			SDL_HINT_OVERRIDE);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+//	SDL_SetWindowGrab(cont->win, SDL_TRUE);
+//	SDL_SetWindowFullscreen(cont->win, SDL_WINDOW_FULLSCREEN);
 	return (0);
 }
 
@@ -513,21 +518,19 @@ void		copy_surface_to_texture(SDL_Texture *tex, SDL_Surface *bmp)
 
 SDL_Texture	*load_bmp(t_cont *cont, char *name)
 {
-//	SDL_Surface	*bmp;
+	SDL_Surface	*bmp;
 	SDL_Texture	*tex;
 
 	bmp = SDL_LoadBMP(name);
 	if (bmp == NULL)
 		exit_sdlerror();
-	return (bmp);
-	/*
 	tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, bmp->w, bmp->h);
 	if (tex == NULL)
 		exit_sdlerror();
 	copy_surface_to_texture(tex, bmp);
 	SDL_FreeSurface(bmp);
-	return (tex);*/
+	return (tex);
 }
 
 void	quit_video(t_cont *cont)
@@ -551,7 +554,9 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 void	load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
-		"img/gun_gif.bmp",
+//		"img/gun_gif.bmp",
+//		"img/fusil_a_pompe.bmp",
+		"img/lance_roquette.bmp",
 		"img/eagle.bmp",
 //		"img/pinkiepie.bmp",
 		"img/redbrick.bmp",
@@ -630,7 +635,7 @@ void		framewait(t_cont *cont)
 	cont->g.ticks = SDL_GetTicks();
 }
 
-int		update_events(void)
+int		update_events(t_cont *cont)
 {
 	SDL_Event ev;
 
@@ -639,6 +644,7 @@ int		update_events(void)
 		if (ev.type == SDL_QUIT)
 			return (1);
 	}
+	cont->mouseb = SDL_GetRelativeMouseState(&cont->mouse.x, &cont->mouse.y);
 	return (0);
 }
 
@@ -672,8 +678,45 @@ void	unlock_textures(t_cont *cont)
 	SDL_UnlockTexture(cont->img.tex);
 }
 
+void	do_mousemotion(t_cont *cont)
+{
+	int		delta;
+	int		acceleration = 10;
+
+/*	if (cont->mouse.x > cont->oldmouse.x + WIN_W / 2)
+		delta = -(((WIN_W - 100 - 1) - cont->mouse.x) + (cont->oldmouse.x - 100));
+	else if (cont->mouse.x < cont->oldmouse.x - WIN_W / 2)
+		delta = (cont->mouse.x - 100) + ((WIN_W - 100 - 1) - cont->oldmouse.x);
+	else
+		delta = cont->mouse.x - cont->oldmouse.x;*/
+	delta = cont->mouse.x;
+	if (delta < -20)
+	{
+//		printf("-: %d %d %d\n", delta, cont->mouse.x, cont->oldmouse.x);
+		while (delta < 0)
+		{
+			turn(cont, K_LEFT, 0.01);
+//			key_arrow(K_LEFT, cont);
+			delta += acceleration;
+		}
+//		cont->oldmouse.x = cont->mouse.x;
+	}
+	else if (delta > 20)
+	{
+//		printf("+: %d %d %d\n", delta, cont->mouse.x, cont->oldmouse.x);
+		while (delta > 0)
+		{
+			turn(cont, K_RIGHT, 0.01);
+//			key_arrow(K_RIGHT, cont);
+			delta -= acceleration;
+		}
+//		cont->oldmouse.x = cont->mouse.x;
+	}
+}
+
 void	do_all(t_cont *cont)
 {
+	do_mousemotion(cont);
 	if (cont->state[SDL_SCANCODE_UP] || cont->state[SDL_SCANCODE_W])
 		key_arrow(K_UP, cont);
 	if (cont->state[SDL_SCANCODE_DOWN] || cont->state[SDL_SCANCODE_S])
@@ -686,9 +729,18 @@ void	do_all(t_cont *cont)
 		key_arrow(K_SIDE_L, cont);
 	if (cont->state[SDL_SCANCODE_E])
 		key_arrow(K_SIDE_R, cont);
-	if (cont->state[SDL_SCANCODE_SPACE] && cont->frame == 1)
+	if (cont->state[SDL_SCANCODE_U])
 	{
-		cont->frame = 2;
+		if (cont->full)
+			SDL_SetWindowFullscreen(cont->win, 0);
+		else
+			SDL_SetWindowFullscreen(cont->win, SDL_WINDOW_FULLSCREEN);
+		cont->full = !cont->full;
+	}
+	if ((cont->state[SDL_SCANCODE_SPACE] || (cont->mouseb & SDL_BUTTON(3))) &&
+			cont->frame == 0)
+	{
+		cont->frame = 1;
 		cont->ticks = 0;
 	}
 }
@@ -696,30 +748,20 @@ void	do_all(t_cont *cont)
 int		main_loop(t_cont *cont)
 {
 cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
-cont->frame = 1;
 	while (1)
 	{
-		SDL_RenderClear(cont->ren);
-		if (update_events() || cont->state[SDL_SCANCODE_ESCAPE])
+//		SDL_RenderClear(cont->ren);
+		if (update_events(cont) || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
 		if (cont->frame > 3)
-			cont->frame = 1;
-		else if (cont->frame > 1 && cont->ticks >= 1)
+			cont->frame = 0;
+		else if (cont->frame > 0 && cont->ticks > 1)
 		{
 			cont->frame++;
 			cont->ticks = 0;
 		}
 		do_all(cont);
 		lock_textures(cont);
-/*{
-	for (int h = 0; h < WIN_H; h++)
-	{
-		for (int w = 0; w < WIN_W; w++)
-		{
-			cont->img.pixels[h * WIN_W + w] = 0;
-		}
-	}
-}*/
 		calc(cont);
 		unlock_textures(cont);
 SDL_UpdateTexture(cont->img.tex, NULL, cont->pixels, cont->img.pitch);

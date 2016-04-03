@@ -127,10 +127,12 @@ typedef struct	s_cont
 	SDL_Window		*win;
 	SDL_Renderer	*ren;
 	t_texture		tex[N_TEXTURES];
-	SDL_Surface		sfc[N_TEXTURES];
 	t_texture		img;
 	Uint32			*pixels;
 	const Uint8		*state;
+	SDL_Rect		mouse;
+	Uint32			mouseb;
+	int				full;
 	int				frame;
 	int				ticks;
 	t_game		g;
@@ -143,6 +145,7 @@ int				put_pixel(t_cont *cont, int x, int y, unsigned col);
 void			put_line(t_cont *cont, t_point p1, t_point p2, unsigned color);
 
 void	calc(t_cont *cont);
+void	turn(t_cont *cont, int key, double move);
 
 
 #endif

@@ -18,19 +18,19 @@
 #include "SDL.h"
 #include "wolf3d.h"
 
-void	turn(t_cont *cont, int key)
+void	turn(t_cont *cont, int key, double acc)
 {
 	double	olddirx;
 	double	oldplanex;
-	double	move;
+//	double	acc;
 	double	cosmove;
 	double	sinmove;
 
-	move = 0.05;
+//	acc = 0.05;
 	if (key == K_RIGHT)
-		move = -move;
-	cosmove = cos(move);
-	sinmove = sin(move);
+		acc = -acc;
+	cosmove = cos(acc);
+	sinmove = sin(acc);
 	olddirx = cont->g.dir.x;
 	oldplanex = cont->g.plane.x;
 	cont->g.dir.x = cont->g.dir.x * cosmove - cont->g.dir.y * sinmove;
@@ -44,68 +44,68 @@ extern int map[24][24];
 void	move(t_cont *cont, int key)
 {
 	SDL_Rect	r;
-	double		move;
+	double		acc;
 
-//	move = 0.15;
-	move = 0.25;
+//	acc = 0.15;
+	acc = 0.25;
 	if (key == K_UP)
 	{
-		r.x = cont->g.pos.x + cont->g.dir.x * move;
+		r.x = cont->g.pos.x + cont->g.dir.x * acc;
 		r.y = cont->g.pos.y;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.x += cont->g.dir.x * move;
+			cont->g.pos.x += cont->g.dir.x * acc;
 		r.x = cont->g.pos.x;
-		r.y = cont->g.pos.y + cont->g.dir.y * move;
+		r.y = cont->g.pos.y + cont->g.dir.y * acc;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.y += cont->g.dir.y * move;
+			cont->g.pos.y += cont->g.dir.y * acc;
 	}
 	else if (key == K_DOWN)
 	{
-		r.x = cont->g.pos.x - cont->g.dir.x * move;
+		r.x = cont->g.pos.x - cont->g.dir.x * acc;
 		r.y = cont->g.pos.y;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.x -= cont->g.dir.x * move;
+			cont->g.pos.x -= cont->g.dir.x * acc;
 		r.x = cont->g.pos.x;
-		r.y = cont->g.pos.y - cont->g.dir.y * move;
+		r.y = cont->g.pos.y - cont->g.dir.y * acc;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.y -= cont->g.dir.y * move;
+			cont->g.pos.y -= cont->g.dir.y * acc;
 	}
 }
 
 void	move_side(t_cont *cont, int key)
 {
 	SDL_Rect	r;
-	double		move;
+	double		acc;
 
-	move = 0.10;
+	acc = 0.10;
 	if (key == K_SIDE_L)
 	{
 		r.x = cont->g.pos.x;
-		r.y = cont->g.pos.y + cont->g.dir.x * move;
+		r.y = cont->g.pos.y + cont->g.dir.x * acc;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.y += cont->g.dir.x * move;
-		r.x = cont->g.pos.x - cont->g.dir.y * move;
+			cont->g.pos.y += cont->g.dir.x * acc;
+		r.x = cont->g.pos.x - cont->g.dir.y * acc;
 		r.y = cont->g.pos.y;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.x -= cont->g.dir.y * move;
+			cont->g.pos.x -= cont->g.dir.y * acc;
 	}
 	else if (key == K_SIDE_R)
 	{
 		r.x = cont->g.pos.x;
-		r.y = cont->g.pos.y - cont->g.dir.x * move;
+		r.y = cont->g.pos.y - cont->g.dir.x * acc;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.y -= cont->g.dir.x * move;
-		r.x = cont->g.pos.x + cont->g.dir.y * move;
+			cont->g.pos.y -= cont->g.dir.x * acc;
+		r.x = cont->g.pos.x + cont->g.dir.y * acc;
 		r.y = cont->g.pos.y;
 		if (map[r.x][r.y] == 0)
-			cont->g.pos.x += cont->g.dir.y * move;
+			cont->g.pos.x += cont->g.dir.y * acc;
 	}
 }
 
 void			key_arrow(int key, t_cont *cont)
 {
 	if (key == K_LEFT || key == K_RIGHT)
-		turn(cont, key);
+		turn(cont, key, 0.05);
 	else if (key == K_UP || key == K_DOWN)
 		move(cont, key);
 	else if (key == K_SIDE_L || key == K_SIDE_R)
