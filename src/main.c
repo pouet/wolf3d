@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/09 15:42:25 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/09 17:01:04 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ t_sprite sprite[NSPRITE] =
 	{10.0, 15.1,9, SP_FIX},
 	{10.5, 15.8,9, SP_FIX},
 
-	{20.5, 11.5, 0, SP_ANIM},
+	{20.5, 11.5, 2, SP_ANIM},
 	{18.5,4.5, 0, SP_ANIM},
 	{10.0,4.5, 0, SP_ANIM},
 	{10.0,12.5,0, SP_ANIM},
@@ -209,6 +209,28 @@ void	calc_side(int *dir, t_calc *c)
 	}
 }
 
+unsigned	side_brightness(unsigned col, int side)
+{
+	SDL_Color	c;
+	unsigned	prct;
+
+	c.r = (col & 0xFF0000) >> 16;
+	c.g = (col & 0x00FF00) >> 8;
+	c.b = (col & 0x0000FF);
+	if (side == S_EAST)
+		prct = 85;
+	else if (side == S_WEST)
+		prct = 70;
+	else if (side == S_NORTH)
+		prct = 55;
+	else
+		prct = 100;
+	c.r = (c.r * prct) / 100;
+	c.g = (c.g * prct) / 100;
+	c.b = (c.b * prct) / 100;
+	return ((c.r << 16) | (c.g << 8) | c.b);
+}
+
 void	draw_wall(t_cont *cont, t_calc *c, int w, int side)
 {
 	SDL_Rect	tex;
@@ -228,6 +250,7 @@ void	draw_wall(t_cont *cont, t_calc *c, int w, int side)
 		if (tex.x >= 0 && tex.x < c->sztex && tex.y >= 0 && tex.y < c->sztex)
 		{
 			col = cont->tex[c->ntex].pixels[tex.y * c->sztex + tex.x];
+			col = side_brightness(col, side);
 			put_pixel(cont, w, y, col);
 		}
 		y++;
@@ -449,20 +472,26 @@ void	render_sprite_anim(t_cont *cont, t_calc *c, int i, int stripe)
 
 	anim = &cont->anim[sprite[c->order[i].order].text];
 	alpha = anim->tex.pixels[0] & 0x00FFFFFF;
-	w = anim->tex.w;
+//	w = anim->tex.w;
+	w = anim->w_one_frame;
 	tex.x = ((256 * (stripe - (-c->spw / 2 + c->spscrx)) * w /
 				c->spw)) / 256;
 	tex.x = tex.x + anim->w_one_frame * anim->frame;
+	if (tex.x >= anim->w_one_frame * (anim->frame + 1))
+		return ;
 	y = c->start.y;
 	while (y < c->end.y)
 	{
 		tex.y = ((((y - c->vmovescr) * 256 - WIN_H * 128 + c->sph * 128) *
 					w) / c->sph) / 256;
-		tex.y %= anim->tex.h;
-		col = anim->tex.pixels[tex.y * w + tex.x];
+		if (tex.y > 0 && tex.y < anim->tex.h)
+		{
+//		tex.y %= anim->tex.h;
+		col = anim->tex.pixels[tex.y * anim->tex.w + tex.x];
 		col &= 0x00FFFFFF;
 		if (col != alpha)
 			put_pixel(cont, stripe, y, col);
+		}
 		y++;
 	}
 }
@@ -647,10 +676,12 @@ void	load_animantions(t_cont *cont)
 	static char	*name[N_ANIM] = {
 		"img/fusil_a_pompe.bmp",
 		"img/lance_roquette.bmp",
+		"img/ventilo.bmp"
 	};
 	static t_anim	anims[N_ANIM] = {
 		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
-		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 }
+		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 },
+		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
 	};
 	int		i;
 
@@ -872,8 +903,8 @@ cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
 		if (update_events(cont) || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
 		update_anim(&cont->gun[cont->actual_gun]);
-		update_anim(&cont->anim[0]);
-		update_anim(&cont->anim[1]);
+		for (int i = 0; i < N_ANIM; i++)
+			update_anim(&cont->anim[i]);
 
 		do_all(cont);
 		lock_textures(cont);
