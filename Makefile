@@ -6,7 +6,7 @@
 #    By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/01 10:58:46 by nchrupal          #+#    #+#              #
-#    Updated: 2016/04/01 12:26:46 by nchrupal         ###   ########.fr        #
+#    Updated: 2016/04/09 15:14:44 by nchrupal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,8 +39,8 @@ libft:
 
 $(NAME): $(OBJ)
 	@printf "%-50s" "create executable "$(notdir $@)...
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $(OBJ) -o $(NAME) -g3 -gdwarf-2 -O0 
-#-fsanitize=address
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $(OBJ) -o $(NAME)
+#-g3 -gdwarf-2 -O0 -fsanitize=address
 	@install_name_tool -change @rpath/SDL2.framework/Versions/A/SDL2\
 		@executable_path/SDL2.framework/SDL2 $(NAME)
 	@printf "\e[1;32m[OK]\e[0m\n"

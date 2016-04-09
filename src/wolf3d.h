@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/09 12:05:51 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/09 15:16:44 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ typedef struct	s_game
 	int			eye;
 }				t_game;
 
-#define NSPRITE 19
+#define NSPRITE 27
 typedef struct	s_calcsprite
 {
 	int			order;
@@ -156,6 +156,7 @@ typedef struct	s_cont
 	SDL_Renderer	*ren;
 	t_texture		tex[N_TEXTURES];
 	t_anim			gun[N_ANIM];
+	t_anim			anim[N_ANIM];
 	int				actual_gun;
 	t_texture		img;
 	Uint32			*pixels;
