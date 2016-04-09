@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/01 16:07:10 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/09 13:07:11 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,20 @@ t_sprite sprite[NSPRITE] =
 	{3.5,  2.5, 9},
 	{9.5, 15.5, 9},
 	{10.0, 15.1,9},
-	{10.5, 15.8,9},
+	{10.5, 15.8,9}
+};
+
+#define NSPRITE_ANIM 8
+t_sprite sprite_anim[NSPRITE_ANIM] =
+{
+	{20.5, 11.5, 0},
+	{18.5,4.5, 0},
+	{10.0,4.5, 0},
+	{10.0,12.5,0},
+	{3.5, 6.5, 1},
+	{3.5, 20.5,1},
+	{3.5, 14.5,1},
+	{14.5,20.5,1}
 };
 
 #define MAPW 24
@@ -331,6 +344,154 @@ void	draw_verticalline(t_cont *cont, t_calc *c, int w, int side)
 	draw_floorceil(cont, c, w, side);
 }
 
+
+
+
+
+
+void	init_var_sprite_anim(t_cont *cont, t_calc *c)
+{
+	t_point		pos;
+	int			i;
+
+	c->invdet = 1. / (cont->g.plane.x * cont->g.dir.y -
+			cont->g.dir.x * cont->g.plane.y);
+	pos = cont->g.pos;
+	i = 0;
+	while (i < NSPRITE_ANIM)
+	{
+		c->order[i].order = i;
+		c->order[i].dist =
+			((pos.x - sprite[i].x) * (pos.x - sprite[i].x) +
+			 (pos.y - sprite[i].y) * (pos.y - sprite[i].y));
+		i++;
+	}
+}
+
+void	calc_var_sprite_anim(t_cont *cont, t_calc *c, int i)
+{
+	c->sp.x = sprite[c->order[i].order].x - cont->g.pos.x;
+	c->sp.y = sprite[c->order[i].order].y - cont->g.pos.y;
+	c->tr.x = c->invdet * (cont->g.dir.y * c->sp.x - cont->g.dir.x * c->sp.y);
+	c->tr.y = c->invdet * (-cont->g.plane.y * c->sp.x + cont->g.plane.x *
+			c->sp.y);
+	c->spscrx = (WIN_W / 2.) * (1. + c->tr.x / c->tr.y);
+}
+
+// pour agrandir et bouger les sprites
+#define uDiv 1
+#define vDiv 1
+#define vmove 0.00
+void	calc_points_sprite_anim(t_calc *c)
+{
+	c->vmovescr = vmove / c->tr.y;
+	c->sph = abs((int)(WIN_H / c->tr.y)) / vDiv;
+	c->spw = abs((int)(WIN_H / c->tr.y)) / uDiv;
+	c->start.y = -c->sph / 2 + WIN_H / 2 + c->vmovescr;
+	if (c->start.y < 0)
+		c->start.y = 0;
+	c->end.y = c->sph / 2 + WIN_H / 2 + c->vmovescr;
+	if (c->end.y >= WIN_H)
+		c->end.y = WIN_H;
+
+	c->start.x = -c->spw / 2 + c->spscrx + c->vmovescr;
+	if (c->start.x < 0)
+		c->start.x = 0;
+	c->end.x = c->spw / 2 + c->spscrx + c->vmovescr;
+	if (c->end.x >= WIN_W)
+		c->end.x = WIN_W;
+}
+
+int		sort_sprite_anim(const void *p1, const void *p2)
+{
+	const t_sortsp	*sp1 = p1;
+	const t_sortsp	*sp2 = p2;
+
+	if (sp1->dist < sp2->dist)
+		return (1);
+	else if (sp1->dist > sp2->dist)
+		return (-1);
+	else
+		return (0);
+}
+
+void	render_sprite_anim(t_cont *cont, t_calc *c, int i, int stripe)
+{
+	SDL_Rect	tex;
+	unsigned	col;
+	int			y;
+	int			w;
+t_anim *gun;
+
+gun = &cont->gun[sprite_anim[c->order[i].order].text];
+	w = gun->w;
+
+	tex.x = ((256 * (stripe - (-c->spw / 2 + c->spscrx)) * w /
+				c->spw)) / 256;
+tex.x = tex.x + gun->frame * (gun->w / gun->n_frame);
+	y = c->start.y;
+	while (y < c->end.y)
+	{
+		tex.y = ((((y - c->vmovescr) * 256 - WIN_H * 128 + c->sph * 128) *
+					w) / c->sph) / 256;
+		col = gun->tex.pixels[tex.y * w + tex.x];
+		col &= 0x00FFFFFF;
+		if (col != 0)
+			put_pixel(cont, stripe, y, col);
+		y++;
+	}
+}
+
+void	draw_sprite_anim(t_cont *cont, t_calc *c)
+{
+	int			i;
+	int			stripe;
+
+	init_var_sprite_anim(cont, c);
+	ft_qsort(c->order, NSPRITE_ANIM, sizeof(c->order[0]), sort_sprite_anim);
+	i = 0;
+	while (i < NSPRITE_ANIM)
+	{
+		calc_var_sprite_anim(cont, c, i);
+		calc_points_sprite_anim(c);
+		stripe = c->start.x;
+		while (stripe < c->end.x)
+		{
+			if (c->tr.y >= 0 && stripe >= 0 && stripe < WIN_W &&
+					c->tr.y < c->zbuffer[stripe])
+				render_sprite_anim(cont, c, i, stripe);
+			stripe++;
+		}
+		i++;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void	init_var_sprite(t_cont *cont, t_calc *c)
 {
 	t_point		pos;
@@ -499,6 +660,7 @@ void	calc(t_cont *cont)
 		w++;
 	}
 	draw_sprite(cont, &c);
+	draw_sprite_anim(cont, &c);
 	draw_gun(cont);
 }
 
