@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/09 17:01:04 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/09 17:36:10 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,11 +104,13 @@ int map[MAPW][MAPH]=
 
 void	start_anim(t_anim *anim)
 {
-	anim->ticks = 0;
+	if (anim->started == 1)
+		return ;
 	if (anim->replay == 0)
 		anim->frame = 1;
 	else
 		anim->frame = 0;
+	anim->ticks = 0;
 	anim->started = 1;
 }
 
@@ -676,12 +678,14 @@ void	load_animantions(t_cont *cont)
 	static char	*name[N_ANIM] = {
 		"img/fusil_a_pompe.bmp",
 		"img/lance_roquette.bmp",
+		"img/coup_de_pied.bmp",
 		"img/ventilo.bmp"
 	};
 	static t_anim	anims[N_ANIM] = {
 		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
 		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 },
-		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
+		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 },
+		{ .n_frame = 4, .replay = -1, .time = 5, .started = 0 }
 	};
 	int		i;
 
@@ -726,6 +730,7 @@ void	load_animantions(t_cont *cont)
 
 		i++;
 	}
+		cont->gun[2].time = 1;
 }
 
 void	load_textures(t_cont *cont)
@@ -886,7 +891,7 @@ void	do_all(t_cont *cont)
 		cont->full = !cont->full;
 	}
 	if ((cont->state[SDL_SCANCODE_SPACE] || (cont->mouseb & SDL_BUTTON(1))) &&
-			cont->gun[cont->actual_gun].frame == 0)
+			cont->gun[cont->actual_gun].started == 0)
 //			cont->frame == 0)
 	{
 		start_anim(&cont->gun[cont->actual_gun]);
