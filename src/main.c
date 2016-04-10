@@ -62,7 +62,7 @@ t_sprite sprite[NSPRITE] =
 	{10.5, 15.8,9, SP_FIX},
 
 	{20.5, 11.5, 2, SP_ANIM},
-	{18.5,4.5, 0, SP_ANIM},
+	{18.5,4.5, 3, SP_ANIM},
 	{10.0,4.5, 0, SP_ANIM},
 	{10.0,12.5,0, SP_ANIM},
 	{3.5, 6.5, 1, SP_ANIM},
@@ -685,7 +685,7 @@ void	load_animantions(t_cont *cont)
 		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
 		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 },
 		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 },
-		{ .n_frame = 4, .replay = -1, .time = 5, .started = 0 }
+		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
 	};
 	int		i;
 
@@ -730,7 +730,6 @@ void	load_animantions(t_cont *cont)
 
 		i++;
 	}
-		cont->gun[2].time = 1;
 }
 
 void	load_textures(t_cont *cont)
