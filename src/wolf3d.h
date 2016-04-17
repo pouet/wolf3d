@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/09 17:20:28 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/17 14:11:06 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,14 @@ typedef struct	s_texture
 	int				h;
 }				t_texture;
 
+typedef struct		s_wave
+{
+	SDL_AudioSpec	spec;
+	Uint32			len;
+	Uint8			*buffer;
+	int				play_len;
+}					t_wave;
+
 /*
 ** r.w, r.h => width, height of the texture
 ** w_one_frame => width one frame
@@ -148,7 +156,14 @@ typedef struct	s_anim
 	int			ticks;
 	int			frame;
 	int			started;
+	int			sfx_present;
+	t_wave		sfx;
 }				t_anim;
+
+typedef struct		s_gun
+{
+	t_anim			gun[N_ANIM];
+}					t_gun;
 
 typedef struct	s_cont
 {

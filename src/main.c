@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/09 17:36:10 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/17 14:52:14 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -597,7 +597,7 @@ void	exit_sdlerror(void)
 
 int		init_video(t_cont *cont)
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
 		exit_sdlerror();
 	cont->win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED, WIN_W, WIN_H, 0);
@@ -673,26 +673,80 @@ void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
 	SDL_RenderCopy(cont->ren, tex, NULL, NULL);
 }
 
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+	t_wave	*sfx;
+	Uint8	*buff;
+
+	SDL_memset(stream, 0, len);
+	sfx = userdata;
+	if (sfx->play_len <= 0)
+		return ;
+	if (len > sfx->play_len)
+		len = sfx->play_len;
+	buff = sfx->buffer + (sfx->len - sfx->play_len);
+	SDL_memcpy(stream, buff, len);
+	SDL_MixAudio(stream, buff, len, SDL_MIX_MAXVOLUME / 2);
+	sfx->play_len -= len;
+}
+
+void	play_sound_thread(void *p) {
+	t_wave	*sfx;
+
+	sfx = malloc(sizeof(*sfx));
+	ft_memcpy(sfx, p, sizeof(*sfx));
+//	sfx = p;
+	sfx->play_len = sfx->len;
+	sfx->spec.callback = audio_callback;
+	sfx->spec.userdata = sfx;
+
+	if (SDL_OpenAudio(&sfx->spec, NULL) < 0)
+		exit_sdlerror();
+	//SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
+
+	SDL_PauseAudio(0);
+	while (sfx->play_len > 0)
+		SDL_Delay(100);
+	SDL_PauseAudio(1);
+	free(sfx);
+//	SDL_CloseAudio();
+}
+
+void	play_sound(t_wave *sfx) {
+	SDL_Thread	*th;
+
+	th = SDL_CreateThread(play_sound_thread, "", (void *)sfx);
+
+//	sfx->play_len = sfx->len;
+//	sfx->spec.callback = audio_callback;
+//	sfx->spec.userdata = sfx;
+//
+//	if (SDL_OpenAudio(&sfx->spec, NULL) < 0)
+//		exit_sdlerror();
+//	//SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
+//
+//	SDL_PauseAudio(0);
+}
+
 void	load_animantions(t_cont *cont)
 {
-	static char	*name[N_ANIM] = {
-		"img/fusil_a_pompe.bmp",
-		"img/lance_roquette.bmp",
-		"img/coup_de_pied.bmp",
-		"img/ventilo.bmp"
+	static char	*name[N_ANIM][2] = {
+		{ "img/fusil_a_pompe.bmp", "" },
+		{ "img/lance_roquette.bmp", "sfx/rocket1i.wav" },
+		{ "img/coup_de_pied.bmp", "" },
+		{ "img/ventilo.bmp", "" }
 	};
 	static t_anim	anims[N_ANIM] = {
-		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
-		{ .n_frame = 7, .replay = 0, .time = 1, .started = 0 },
-		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 },
-		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
+		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0, .sfx_present = 0 },
+		{ .n_frame = 7, .replay = 0, .time = 3, .started = 0, .sfx_present = 1},
+		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0, .sfx_present = 0 },
+		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0, .sfx_present = 0 }
 	};
 	int		i;
 
 	i = 0;
 	while (i < N_ANIM)
 	{
-		cont->anim[i].tex.tex = load_bmp(cont, name[i]);
+		cont->anim[i].tex.tex = load_bmp(cont, name[i][0]);
 		SDL_QueryTexture(cont->anim[i].tex.tex, NULL, NULL,
 				&cont->anim[i].w, &cont->anim[i].h);
 		cont->anim[i].tex.w = cont->anim[i].w;
@@ -710,7 +764,7 @@ void	load_animantions(t_cont *cont)
 
 //		cont->gun[i] = cont->anim[i];
 
-		cont->gun[i].tex.tex = load_bmp(cont, name[i]);
+		cont->gun[i].tex.tex = load_bmp(cont, name[i][0]);
 		SDL_QueryTexture(cont->gun[i].tex.tex, NULL, NULL,
 				&cont->gun[i].w, &cont->gun[i].h);
 		cont->gun[i].tex.w = cont->gun[i].w;
@@ -720,6 +774,36 @@ void	load_animantions(t_cont *cont)
 		cont->gun[i].time = anims[i].time;
 		cont->gun[i].w_one_frame = cont->gun[i].w / cont->gun[i].n_frame;
 		cont->gun[i].started = anims[i].started;
+		cont->gun[i].sfx_present = anims[i].sfx_present;
+
+		if (cont->gun[i].sfx_present) {
+			if (SDL_LoadWAV(name[i][1], &cont->gun[i].sfx.spec,
+						&cont->gun[i].sfx.buffer, &cont->gun[i].sfx.len) == NULL)
+				exit_sdlerror();
+
+//cont->gun[i].sfx.play_len = cont->gun[i].sfx.len;
+//
+//cont->gun[i].sfx.spec.callback = audio_callback;
+//cont->gun[i].sfx.spec.userdata = &cont->gun[i].sfx;
+////audio_pos = cont->gun[i].sfx.buffer;
+////audio_len = cont->gun[i].sfx.len;
+//
+//			if (SDL_OpenAudio(&cont->gun[i].sfx.spec, NULL) < 0)
+//				exit_sdlerror();
+////SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
+//
+//			play_sound(&cont->gun[i].sfx);
+//			SDL_Delay(200);
+			play_sound(&cont->gun[i].sfx);
+//			SDL_PauseAudio(0);
+
+//			while (audio_len > 0)
+//				SDL_Delay(100);
+//SDL_Delay(2000);
+//			SDL_CloseAudio();
+
+
+		}
 
 		if (SDL_LockTexture(cont->gun[i].tex.tex, NULL,
 					(void **)&cont->gun[i].tex.pixels, &cont->gun[i].tex.pitch) < 0)
@@ -730,6 +814,7 @@ void	load_animantions(t_cont *cont)
 
 		i++;
 	}
+	cont->gun[3].time = 1;
 }
 
 void	load_textures(t_cont *cont)
@@ -740,10 +825,10 @@ void	load_textures(t_cont *cont)
 //		"img/lance_roquette.bmp",
 		"img/eagle.bmp",
 		"img/eagle.bmp",
-//		"img/pinkiepie.bmp",
-		"img/redbrick.bmp",
-//		"img/rbdashgun.bmp",
-		"img/purplestone.bmp",
+		"img/pinkiepie.bmp",
+//		"img/redbrick.bmp",
+		"img/rbdashgun.bmp",
+//		"img/purplestone.bmp",
 //		"img/herb.bmp",
 		"img/greystone.bmp",
 		"img/bluestone.bmp",
@@ -754,8 +839,8 @@ void	load_textures(t_cont *cont)
 		"img/barrel.bmp",
 		"img/pillar.bmp",
 		"img/greenlight.bmp",
-		"img/eagle.bmp",
-//		"img/rainbowdash512.bmp",
+//		"img/eagle.bmp",
+		"img/rainbowdash512.bmp",
 		"img/skybox.bmp"
 	};
 	int		i;
