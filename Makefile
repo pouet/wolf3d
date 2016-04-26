@@ -6,11 +6,12 @@
 #    By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/01 10:58:46 by nchrupal          #+#    #+#              #
-#    Updated: 2016/04/09 15:14:44 by nchrupal         ###   ########.fr        #
+#    Updated: 2016/04/26 14:41:53 by nchrupal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRC_NAME = $(sort main.c keys.c image.c)
+SRC_NAME = $(sort main.c errors.c load.c events.c texture_lock.c anim.c \
+		   texture.c init_quit.c xmalloc.c     keys.c image.c)
 SRC_PATH = ./src/
 OBJ_PATH = ./obj/
 LIBFT_PATH = ./libft/

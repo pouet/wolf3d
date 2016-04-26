@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/15 14:41:08 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/17 14:52:14 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/26 14:40:46 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,11 @@
 #include "SDL.h"
 #include "libft.h"
 #include "wolf3d.h"
-#include "SDL.h"
-
+#include "events.h"
+#include "errors.h"
+#include "texture_lock.h"
+#include "load.h"
+#include "init_quit.h"
 
 enum {
 	SP_FIX,
@@ -33,105 +36,67 @@ typedef struct	s_sprite
 	int			type;
 }				t_sprite;
 
-
 t_sprite sprite[NSPRITE] =
 {
-	{20.5, 11.5, 11, SP_FIX}, //green light in front of playerstart
-	//green lights in every room
-	{18.5,4.5, 11, SP_FIX},
-	{10.0,4.5, 11, SP_FIX},
-	{10.0,12.5,11, SP_FIX},
-	{3.5, 6.5, 11, SP_FIX},
-	{3.5, 20.5,11, SP_FIX},
-	{3.5, 14.5,11, SP_FIX},
-	{14.5,20.5,11, SP_FIX},
-
-	//row of pillars in front of wall: fisheye test
-	{18.5, 10.5, 10, SP_FIX},
-	{18.5, 11.5, 10, SP_FIX},
-	{18.5, 12.5, 10, SP_FIX},
-
-	//some barrels around the map
-	{21.5, 1.5, 9, SP_FIX},
-	{15.5, 1.5, 9, SP_FIX},
-	{16.0, 1.8, 9, SP_FIX},
-	{16.2, 1.2, 9, SP_FIX},
-	{3.5,  2.5, 9, SP_FIX},
-	{9.5, 15.5, 9, SP_FIX},
-	{10.0, 15.1,9, SP_FIX},
-	{10.5, 15.8,9, SP_FIX},
-
-	{20.5, 11.5, 2, SP_ANIM},
-	{18.5,4.5, 3, SP_ANIM},
-	{10.0,4.5, 0, SP_ANIM},
-	{10.0,12.5,0, SP_ANIM},
-	{3.5, 6.5, 1, SP_ANIM},
-	{3.5, 20.5,1, SP_ANIM},
-	{3.5, 14.5,1, SP_ANIM},
-	{14.5,20.5,1, SP_ANIM}
+	{ 20.5, 11.5, 11, SP_FIX },
+	{ 18.5, 4.5, 11, SP_FIX },
+	{ 10.0, 4.5, 11, SP_FIX },
+	{ 10.0, 12.5, 11, SP_FIX },
+	{ 3.5, 6.5, 11, SP_FIX },
+	{ 3.5, 20.5, 11, SP_FIX },
+	{ 3.5, 14.5, 11, SP_FIX },
+	{ 14.5, 20.5, 11, SP_FIX },
+	{ 18.5, 10.5, 10, SP_FIX },
+	{ 18.5, 11.5, 10, SP_FIX },
+	{ 18.5, 12.5, 10, SP_FIX },
+	{ 21.5, 1.5, 9, SP_FIX },
+	{ 15.5, 1.5, 9, SP_FIX },
+	{ 16.0, 1.8, 9, SP_FIX },
+	{ 16.2, 1.2, 9, SP_FIX },
+	{ 3.5, 2.5, 9, SP_FIX },
+	{ 9.5, 15.5, 9, SP_FIX },
+	{ 10.0, 15.1, 9, SP_FIX },
+	{ 10.5, 15.8, 9, SP_FIX },
+	{ 20.5, 11.5, 2, SP_ANIM },
+	{ 18.5, 4.5, 3, SP_ANIM },
+	{ 10.0, 4.5, 0, SP_ANIM },
+	{ 10.0, 12.5, 0, SP_ANIM },
+	{ 3.5, 6.5, 1, SP_ANIM },
+	{ 3.5, 20.5, 1, SP_ANIM },
+	{ 3.5, 14.5, 1, SP_ANIM },
+	{ 14.5, 20.5, 1, SP_ANIM }
 };
 
 #define MAPW 24
 #define MAPH 24
 
-int map[MAPW][MAPH]=
+int map[MAPW][MAPH] =
 {
-	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 6, 4, 4, 6, 4, 6, 4, 4, 4, 6, 4},
-	{8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-	{8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-	{8, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-	{8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-	{8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 6, 6, 6, 0, 6, 4, 6},
-	{8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 6, 0, 0, 0, 0, 0, 6},
-	{7, 7, 7, 7, 0, 7, 7, 7, 7, 0, 8, 0, 8, 0, 8, 0, 8, 4, 0, 4, 0, 6, 0, 6},
-	{7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 0, 0, 0, 0, 0, 6},
-	{7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 0, 0, 0, 0, 4},
-	{7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 6, 0, 6, 0, 6},
-	{7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 4, 6, 0, 6, 6, 6},
-	{7, 7, 7, 7, 0, 7, 7, 7, 7, 8, 8, 4, 0, 6, 8, 4, 8, 3, 3, 3, 0, 3, 3, 3},
-	{2, 2, 2, 2, 0, 2, 2, 2, 2, 4, 6, 4, 0, 0, 6, 0, 6, 3, 0, 0, 0, 0, 0, 3},
-	{2, 2, 0, 0, 0, 0, 0, 2, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3},
-	{2, 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3},
-	{12,0, 0, 0, 0, 0, 0, 0, 12,4, 4 ,4, 4, 4, 6, 0, 6, 3, 3, 0, 0, 0, 3, 3},
-	{2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2 ,12,2, 2, 2, 6, 6, 0, 0, 5, 0, 5, 0, 5},
-	{2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0 ,0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5},
-	{2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 ,0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5},
-	{12,0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5},
-	{2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 ,0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5},
-	{2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0 ,0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5},
-	{2, 2, 2, 2, 12,2 ,2 ,2 ,2, 2, 2 ,12,2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5}
+	{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 6, 4, 4, 6, 4, 6, 4, 4, 4, 6, 4 },
+	{ 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4 },
+	{ 8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+	{ 8, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+	{ 8, 0, 3, 3, 0, 0, 0, 0, 0, 8, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4 },
+	{ 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 0, 0, 0, 0, 0, 6, 6, 6, 0, 6, 4, 6 },
+	{ 8, 8, 8, 8, 0, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 4, 4, 6, 0, 0, 0, 0, 0, 6 },
+	{ 7, 7, 7, 7, 0, 7, 7, 7, 7, 0, 8, 0, 8, 0, 8, 0, 8, 4, 0, 4, 0, 6, 0, 6 },
+	{ 7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 0, 0, 0, 0, 0, 6 },
+	{ 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 0, 0, 0, 0, 4 },
+	{ 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 6, 0, 6, 0, 6, 0, 6 },
+	{ 7, 7, 0, 0, 0, 0, 0, 0, 7, 8, 0, 8, 0, 8, 0, 8, 8, 6, 4, 6, 0, 6, 6, 6 },
+	{ 7, 7, 7, 7, 0, 7, 7, 7, 7, 8, 8, 4, 0, 6, 8, 4, 8, 3, 3, 3, 0, 3, 3, 3 },
+	{ 2, 2, 2, 2, 0, 2, 2, 2, 2, 4, 6, 4, 0, 0, 6, 0, 6, 3, 0, 0, 0, 0, 0, 3 },
+	{ 2, 2, 0, 0, 0, 0, 0, 2, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3 },
+	{ 2, 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 3 },
+	{ 12, 0, 0, 0, 0, 0, 0, 0, 12, 4, 4 ,4, 4, 4, 6, 0, 6, 3, 3, 0, 0, 0, 3, 3 },
+	{ 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 12, 2, 2, 2, 6, 6, 0, 0, 5, 0, 5, 0, 5 },
+	{ 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5 },
+	{ 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5 },
+	{ 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5 },
+	{ 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 5, 0, 5, 0, 5, 0, 5, 0, 5 },
+	{ 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 5, 0, 5, 0, 0, 0, 5, 5 },
+	{ 2, 2, 2, 2, 12, 2 ,2 ,2 ,2, 2, 2, 12, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
 };
-
-void	start_anim(t_anim *anim)
-{
-	if (anim->started == 1)
-		return ;
-	if (anim->replay == 0)
-		anim->frame = 1;
-	else
-		anim->frame = 0;
-	anim->ticks = 0;
-	anim->started = 1;
-}
-
-void	update_anim(t_anim *anim)
-{
-	if (anim->started)
-	{
-		anim->ticks++;
-		if (anim->ticks >= anim->time)
-		{
-			anim->frame++;
-			if (anim->frame >= anim->n_frame)
-			{
-				anim->frame = 0;
-				if (anim->replay == 0)
-					anim->started = 0;
-			}
-			anim->ticks = 0;
-		}
-	}
-}
 
 void	calc_val(t_cont *cont, int w, t_calc *c)
 {
@@ -371,8 +336,6 @@ void	draw_verticalline(t_cont *cont, t_calc *c, int w, int side)
 	draw_floorceil(cont, c, w, side);
 }
 
-
-
 void	init_var_sprite(t_cont *cont, t_calc *c)
 {
 	t_point		pos;
@@ -387,7 +350,7 @@ void	init_var_sprite(t_cont *cont, t_calc *c)
 		c->order[i].order = i;
 		c->order[i].dist =
 			((pos.x - sprite[i].x) * (pos.x - sprite[i].x) +
-			 (pos.y - sprite[i].y) * (pos.y - sprite[i].y));
+			(pos.y - sprite[i].y) * (pos.y - sprite[i].y));
 		i++;
 	}
 }
@@ -417,7 +380,6 @@ void	calc_points_sprite(t_calc *c)
 	c->end.y = c->sph / 2 + WIN_H / 2 + c->vmovescr;
 	if (c->end.y >= WIN_H)
 		c->end.y = WIN_H;
-
 	c->start.x = -c->spw / 2 + c->spscrx + c->vmovescr;
 	if (c->start.x < 0)
 		c->start.x = 0;
@@ -438,7 +400,6 @@ int		sort_sprite(const void *p1, const void *p2)
 	else
 		return (0);
 }
-
 
 void	render_sprite_fix(t_cont *cont, t_calc *c, int i, int stripe)
 {
@@ -463,6 +424,7 @@ void	render_sprite_fix(t_cont *cont, t_calc *c, int i, int stripe)
 		y++;
 	}
 }
+
 void	render_sprite_anim(t_cont *cont, t_calc *c, int i, int stripe)
 {
 	SDL_Rect	tex;
@@ -474,7 +436,6 @@ void	render_sprite_anim(t_cont *cont, t_calc *c, int i, int stripe)
 
 	anim = &cont->anim[sprite[c->order[i].order].text];
 	alpha = anim->tex.pixels[0] & 0x00FFFFFF;
-//	w = anim->tex.w;
 	w = anim->w_one_frame;
 	tex.x = ((256 * (stripe - (-c->spw / 2 + c->spscrx)) * w /
 				c->spw)) / 256;
@@ -488,16 +449,14 @@ void	render_sprite_anim(t_cont *cont, t_calc *c, int i, int stripe)
 					w) / c->sph) / 256;
 		if (tex.y > 0 && tex.y < anim->tex.h)
 		{
-//		tex.y %= anim->tex.h;
-		col = anim->tex.pixels[tex.y * anim->tex.w + tex.x];
-		col &= 0x00FFFFFF;
-		if (col != alpha)
-			put_pixel(cont, stripe, y, col);
+			col = anim->tex.pixels[tex.y * anim->tex.w + tex.x];
+			col &= 0x00FFFFFF;
+			if (col != alpha)
+				put_pixel(cont, stripe, y, col);
 		}
 		y++;
 	}
 }
-
 
 void	render_sprite(t_cont *cont, t_calc *c, int i, int stripe)
 {
@@ -542,11 +501,8 @@ void	draw_gun(t_cont *cont)
 
 	gun = &cont->gun[cont->actual_gun];
 	alpha = gun->tex.pixels[0] & 0x00FFFFFF;
-//	alpha = cont->tex[0].pixels[0] & 0x00FFFFFF;
 	win.x = WIN_W / 2 - gun->w_one_frame / 2;// + 350;// + 50;
 	win.y = WIN_H - gun->h;
-//	win.x = WIN_W / 2 - cont->tex[0].w / 2 + 350;// + 50;
-//	win.y = WIN_H - cont->tex[0].h;
 	y = 0;
 	while (y < gun->h)
 	{
@@ -585,295 +541,7 @@ void	calc(t_cont *cont)
 		w++;
 	}
 	draw_sprite(cont, &c);
-//	draw_sprite_anim(cont, &c);
 	draw_gun(cont);
-}
-
-void	exit_sdlerror(void)
-{
-	ft_putendl_fd(SDL_GetError(), 2);
-	exit(EXIT_FAILURE);
-}
-
-int		init_video(t_cont *cont)
-{
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-		exit_sdlerror();
-	cont->win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED, WIN_W, WIN_H, 0);
-	if (cont->win == NULL)
-		exit_sdlerror();
-	cont->ren = SDL_CreateRenderer(cont->win, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
-	if (cont->ren == NULL)
-		exit_sdlerror();
-	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1",
-			SDL_HINT_OVERRIDE);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-//	SDL_SetWindowGrab(cont->win, SDL_TRUE);
-//	SDL_SetWindowFullscreen(cont->win, SDL_WINDOW_FULLSCREEN);
-	return (0);
-}
-
-void		copy_surface_to_texture(SDL_Texture *tex, SDL_Surface *bmp)
-{
-	SDL_Rect	r;
-	void		*pixels;
-	int			pitch;
-
-	SDL_LockTexture(tex, NULL, &pixels, &pitch);
-	r.y = 0;
-	while (r.y < bmp->h)
-	{
-		r.x = 0;
-		while (r.x < bmp->w)
-		{
-			*(Uint32 *)((char *)pixels + (r.y * pitch + r.x * 4)) =
-				*(Uint32 *)((char *)bmp->pixels +
-						(r.y * bmp->pitch + r.x * bmp->format->BytesPerPixel));
-			r.x++;
-		}
-		r.y++;
-	}
-	SDL_UnlockTexture(tex);
-}
-
-SDL_Texture	*load_bmp(t_cont *cont, char *name)
-{
-	SDL_Surface	*bmp;
-	SDL_Texture	*tex;
-
-	bmp = SDL_LoadBMP(name);
-	if (bmp == NULL)
-		exit_sdlerror();
-	tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
-			SDL_TEXTUREACCESS_STREAMING, bmp->w, bmp->h);
-	if (tex == NULL)
-		exit_sdlerror();
-	copy_surface_to_texture(tex, bmp);
-	SDL_FreeSurface(bmp);
-	return (tex);
-}
-
-void	quit_video(t_cont *cont)
-{
-	SDL_DestroyRenderer(cont->ren);
-	SDL_DestroyWindow(cont->win);
-	SDL_Quit();
-}
-
-void	render_texture(t_cont *cont, SDL_Texture *tex, int x, int y)
-{
-	SDL_Rect dst;
-
-	dst.x = x;
-	dst.y = y;
-	SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-//	SDL_RenderCopy(cont->ren, tex, NULL, &dst);
-	SDL_RenderCopy(cont->ren, tex, NULL, NULL);
-}
-
-void audio_callback(void *userdata, Uint8 *stream, int len) {
-	t_wave	*sfx;
-	Uint8	*buff;
-
-	SDL_memset(stream, 0, len);
-	sfx = userdata;
-	if (sfx->play_len <= 0)
-		return ;
-	if (len > sfx->play_len)
-		len = sfx->play_len;
-	buff = sfx->buffer + (sfx->len - sfx->play_len);
-	SDL_memcpy(stream, buff, len);
-	SDL_MixAudio(stream, buff, len, SDL_MIX_MAXVOLUME / 2);
-	sfx->play_len -= len;
-}
-
-void	play_sound_thread(void *p) {
-	t_wave	*sfx;
-
-	sfx = malloc(sizeof(*sfx));
-	ft_memcpy(sfx, p, sizeof(*sfx));
-//	sfx = p;
-	sfx->play_len = sfx->len;
-	sfx->spec.callback = audio_callback;
-	sfx->spec.userdata = sfx;
-
-	if (SDL_OpenAudio(&sfx->spec, NULL) < 0)
-		exit_sdlerror();
-	//SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
-
-	SDL_PauseAudio(0);
-	while (sfx->play_len > 0)
-		SDL_Delay(100);
-	SDL_PauseAudio(1);
-	free(sfx);
-//	SDL_CloseAudio();
-}
-
-void	play_sound(t_wave *sfx) {
-	SDL_Thread	*th;
-
-	th = SDL_CreateThread(play_sound_thread, "", (void *)sfx);
-
-//	sfx->play_len = sfx->len;
-//	sfx->spec.callback = audio_callback;
-//	sfx->spec.userdata = sfx;
-//
-//	if (SDL_OpenAudio(&sfx->spec, NULL) < 0)
-//		exit_sdlerror();
-//	//SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
-//
-//	SDL_PauseAudio(0);
-}
-
-void	load_animantions(t_cont *cont)
-{
-	static char	*name[N_ANIM][2] = {
-		{ "img/fusil_a_pompe.bmp", "" },
-		{ "img/lance_roquette.bmp", "sfx/rocket1i.wav" },
-		{ "img/coup_de_pied.bmp", "" },
-		{ "img/ventilo.bmp", "" }
-	};
-	static t_anim	anims[N_ANIM] = {
-		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0, .sfx_present = 0 },
-		{ .n_frame = 7, .replay = 0, .time = 3, .started = 0, .sfx_present = 1},
-		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0, .sfx_present = 0 },
-		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0, .sfx_present = 0 }
-	};
-	int		i;
-
-	i = 0;
-	while (i < N_ANIM)
-	{
-		cont->anim[i].tex.tex = load_bmp(cont, name[i][0]);
-		SDL_QueryTexture(cont->anim[i].tex.tex, NULL, NULL,
-				&cont->anim[i].w, &cont->anim[i].h);
-		cont->anim[i].tex.w = cont->anim[i].w;
-		cont->anim[i].tex.h = cont->anim[i].h;
-		cont->anim[i].n_frame = anims[i].n_frame;
-		cont->anim[i].replay = -1;
-		cont->anim[i].time = anims[i].time;
-		cont->anim[i].w_one_frame = cont->anim[i].w / cont->anim[i].n_frame;
-		cont->anim[i].started = 1;
-
-		if (SDL_LockTexture(cont->anim[i].tex.tex, NULL,
-					(void **)&cont->anim[i].tex.pixels, &cont->anim[i].tex.pitch) < 0)
-			exit_sdlerror();
-		start_anim(&cont->anim[i]);
-
-//		cont->gun[i] = cont->anim[i];
-
-		cont->gun[i].tex.tex = load_bmp(cont, name[i][0]);
-		SDL_QueryTexture(cont->gun[i].tex.tex, NULL, NULL,
-				&cont->gun[i].w, &cont->gun[i].h);
-		cont->gun[i].tex.w = cont->gun[i].w;
-		cont->gun[i].tex.h = cont->gun[i].h;
-		cont->gun[i].n_frame = anims[i].n_frame;
-		cont->gun[i].replay = anims[i].replay;
-		cont->gun[i].time = anims[i].time;
-		cont->gun[i].w_one_frame = cont->gun[i].w / cont->gun[i].n_frame;
-		cont->gun[i].started = anims[i].started;
-		cont->gun[i].sfx_present = anims[i].sfx_present;
-
-		if (cont->gun[i].sfx_present) {
-			if (SDL_LoadWAV(name[i][1], &cont->gun[i].sfx.spec,
-						&cont->gun[i].sfx.buffer, &cont->gun[i].sfx.len) == NULL)
-				exit_sdlerror();
-
-//cont->gun[i].sfx.play_len = cont->gun[i].sfx.len;
-//
-//cont->gun[i].sfx.spec.callback = audio_callback;
-//cont->gun[i].sfx.spec.userdata = &cont->gun[i].sfx;
-////audio_pos = cont->gun[i].sfx.buffer;
-////audio_len = cont->gun[i].sfx.len;
-//
-//			if (SDL_OpenAudio(&cont->gun[i].sfx.spec, NULL) < 0)
-//				exit_sdlerror();
-////SDL_QueueAudio(0, cont->gun[i].sfx.buffer, cont->gun[i].sfx.len);
-//
-//			play_sound(&cont->gun[i].sfx);
-//			SDL_Delay(200);
-			play_sound(&cont->gun[i].sfx);
-//			SDL_PauseAudio(0);
-
-//			while (audio_len > 0)
-//				SDL_Delay(100);
-//SDL_Delay(2000);
-//			SDL_CloseAudio();
-
-
-		}
-
-		if (SDL_LockTexture(cont->gun[i].tex.tex, NULL,
-					(void **)&cont->gun[i].tex.pixels, &cont->gun[i].tex.pitch) < 0)
-			exit_sdlerror();
-
-
-
-
-		i++;
-	}
-	cont->gun[3].time = 1;
-}
-
-void	load_textures(t_cont *cont)
-{
-	static char	*name[N_TEXTURES] = {
-//		"img/gun_gif.bmp",
-//		"img/fusil_a_pompe.bmp",
-//		"img/lance_roquette.bmp",
-		"img/eagle.bmp",
-		"img/eagle.bmp",
-		"img/pinkiepie.bmp",
-//		"img/redbrick.bmp",
-		"img/rbdashgun.bmp",
-//		"img/purplestone.bmp",
-//		"img/herb.bmp",
-		"img/greystone.bmp",
-		"img/bluestone.bmp",
-		"img/mossy.bmp",
-//		"img/sky.bmp",
-		"img/wood.bmp",
-		"img/colorstone.bmp",
-		"img/barrel.bmp",
-		"img/pillar.bmp",
-		"img/greenlight.bmp",
-//		"img/eagle.bmp",
-		"img/rainbowdash512.bmp",
-		"img/skybox.bmp"
-	};
-	int		i;
-
-	i = 0;
-	while (i < N_TEXTURES)
-	{
-		cont->tex[i].tex = load_bmp(cont, name[i]);
-		SDL_QueryTexture(cont->tex[i].tex, NULL, NULL,
-				&cont->tex[i].w, &cont->tex[i].h);
-		if (SDL_LockTexture(cont->tex[i].tex, NULL,
-					(void **)&cont->tex[i].pixels, &cont->tex[i].pitch) < 0)
-			exit_sdlerror();
-		i++;
-	}
-}
-
-void	init_var(t_cont *cont)
-{
-	cont->g.pos.x = 22;
-	cont->g.pos.y = 12;
-	cont->g.dir.x = -1;
-	cont->g.dir.y = 0;
-	cont->g.plane.x = 0;
-	cont->g.plane.y = 0.66;
-	cont->g.eye = 0;
-	cont->g.ticks = SDL_GetTicks();
-	cont->state = SDL_GetKeyboardState(NULL);
-	cont->img.tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
-			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
-	SDL_QueryTexture(cont->img.tex, NULL, NULL, &cont->img.w, &cont->img.h);
-	load_textures(cont);
-	load_animantions(cont);
 }
 
 void		framewait(t_cont *cont)
@@ -889,66 +557,6 @@ void		framewait(t_cont *cont)
 	}
 	cont->g.ticks = SDL_GetTicks();
 	cont->ticks++;
-}
-
-int		update_events(t_cont *cont)
-{
-	SDL_Event ev;
-
-	while (SDL_PollEvent(&ev))
-	{
-		if (ev.type == SDL_QUIT)
-			return (1);
-		else if (ev.type == SDL_MOUSEWHEEL)
-		{
-			if (ev.wheel.y < 0)
-			{
-				cont->actual_gun = cont->actual_gun - 1;
-				if (cont->actual_gun < 0)
-					cont->actual_gun = N_ANIM - 1;
-			}
-			else if (ev.wheel.y > 0)
-				cont->actual_gun = (cont->actual_gun + 1) % N_ANIM;
-		}
-	}
-	cont->mouseb = SDL_GetRelativeMouseState(&cont->mouse.x, &cont->mouse.y);
-	return (0);
-}
-
-void	lock_textures(t_cont *cont)
-{
-	if (SDL_LockTexture(cont->img.tex, NULL, (void **)&cont->img.pixels,
-				&cont->img.pitch) < 0)
-		exit_sdlerror();
-}
-
-void	unlock_textures(t_cont *cont)
-{
-	SDL_UnlockTexture(cont->img.tex);
-}
-
-void	do_mousemotion(t_cont *cont)
-{
-	int		delta;
-	int		acceleration = 10;
-
-	delta = cont->mouse.x;
-	if (delta < -20)
-	{
-		while (delta < -10)
-		{
-			turn(cont, K_LEFT, 0.01);
-			delta += acceleration;
-		}
-	}
-	else if (delta > 20)
-	{
-		while (delta > 10)
-		{
-			turn(cont, K_RIGHT, 0.01);
-			delta -= acceleration;
-		}
-	}
 }
 
 void	do_all(t_cont *cont)
@@ -976,25 +584,26 @@ void	do_all(t_cont *cont)
 	}
 	if ((cont->state[SDL_SCANCODE_SPACE] || (cont->mouseb & SDL_BUTTON(1))) &&
 			cont->gun[cont->actual_gun].started == 0)
-//			cont->frame == 0)
 	{
 		start_anim(&cont->gun[cont->actual_gun]);
-//		cont->frame = 1;
-//		cont->ticks = 0;
 	}
 }
 
 int		main_loop(t_cont *cont)
 {
-cont->pixels = malloc(WIN_H * WIN_W * sizeof(Uint32));
+	int		i;
+
 	while (1)
 	{
 		if (update_events(cont) || cont->state[SDL_SCANCODE_ESCAPE])
 			break ;
 		update_anim(&cont->gun[cont->actual_gun]);
-		for (int i = 0; i < N_ANIM; i++)
+		i = 0;
+		while (i < N_ANIM)
+		{
 			update_anim(&cont->anim[i]);
-
+			i++;
+		}
 		do_all(cont);
 		lock_textures(cont);
 		calc(cont);

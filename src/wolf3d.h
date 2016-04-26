@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 13:55:24 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/17 14:11:06 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/26 14:40:50 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 # include <math.h>
 # include "libft.h"
 # include "SDL.h"
-
+# include "anim.h"
+# include "texture.h"
 
 
 # define TITLE "wolf3d"
@@ -113,52 +114,6 @@ typedef struct	s_calc
 	SDL_Rect	start;
 	SDL_Rect	end;
 }				t_calc;
-
-typedef struct	s_texture
-{
-	SDL_Texture		*tex;
-	Uint32			*pixels;
-	int				pitch;
-	int				w;
-	int				h;
-}				t_texture;
-
-typedef struct		s_wave
-{
-	SDL_AudioSpec	spec;
-	Uint32			len;
-	Uint8			*buffer;
-	int				play_len;
-}					t_wave;
-
-/*
-** r.w, r.h => width, height of the texture
-** w_one_frame => width one frame
-** n_frame => number of frame in animation
-** replay =>	-1: infinite
-**				0: print 1rst frame
-**				>0: replay n time
-** time => time between each frame (multiple of FPS_DFLT)
-** ticks => actual time since start
-** frame => current frame
-** started => ... need help ?
-*/
-
-typedef struct	s_anim
-{
-	t_texture	tex;
-	int			w;
-	int			h;
-	int			w_one_frame;
-	int			n_frame;
-	int			replay;
-	int			time;
-	int			ticks;
-	int			frame;
-	int			started;
-	int			sfx_present;
-	t_wave		sfx;
-}				t_anim;
 
 typedef struct		s_gun
 {
