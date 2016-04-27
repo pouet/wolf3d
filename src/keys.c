@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:32:37 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/27 10:05:03 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 13:23:17 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	turn(t_cont *cont, int key, double acc)
 void	move(t_cont *cont, int key)
 {
 	SDL_Rect		r;
-	const double	acc = 0.25;
+	const double	acc = 0.15;
 
 	if (key == K_UP)
 	{
@@ -69,7 +69,7 @@ void	move(t_cont *cont, int key)
 void	move_side(t_cont *cont, int key)
 {
 	SDL_Rect		r;
-	const double	acc = 0.10;
+	const double	acc = 0.05;
 
 	if (key == K_SIDE_L)
 	{

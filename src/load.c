@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 12:35:39 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/27 12:30:09 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 14:06:41 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,19 +76,23 @@ t_anim			load_one_anim(t_cont *cont, char *file, t_anim specs)
 	return (anim);
 }
 
+/*
+**		{ "img/ventilo.bmp", "" }
+**		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 };
+*/
+
+
 void			load_animantions(t_cont *cont)
 {
 	static char		*name[N_ANIM][2] = {
 		{ "img/fusil_a_pompe.bmp", "" },
 		{ "img/lance_roquette.bmp", "sfx/rocket1i.wav" },
-		{ "img/coup_de_pied.bmp", "" },
-		{ "img/ventilo.bmp", "" }
+		{ "img/coup_de_pied.bmp", "" }
 	};
 	static t_anim	anims[N_ANIM] = {
 		{ .n_frame = 6, .replay = 0, .time = 1, .started = 0 },
 		{ .n_frame = 7, .replay = 0, .time = 3, .started = 0 },
-		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 },
-		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
+		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 }
 	};
 	int				i;
 
@@ -102,16 +106,15 @@ void			load_animantions(t_cont *cont)
 		cont->gun[i] = load_one_anim(cont, name[i][0], anims[i]);
 		i++;
 	}
-	cont->gun[3].time = 1;
 }
 
 void			load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
-		"img/eagle.bmp", "img/eagle.bmp", "img/pinkiepie.bmp",
-		"img/rbdashgun.bmp", "img/greystone.bmp", "img/bluestone.bmp",
+		"img/eagle.bmp", "img/eagle.bmp", "img/redbrick.bmp",
+		"img/purplestone.bmp", "img/greystone.bmp", "img/bluestone.bmp",
 		"img/mossy.bmp", "img/wood.bmp", "img/colorstone.bmp", "img/barrel.bmp",
-		"img/pillar.bmp", "img/greenlight.bmp", "img/rainbowdash512.bmp",
+		"img/pillar.bmp", "img/greenlight.bmp", "img/eagle.bmp",
 		"img/skybox.bmp"
 	};
 	int			i;
