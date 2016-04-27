@@ -6,7 +6,7 @@
 #    By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/01 10:58:46 by nchrupal          #+#    #+#              #
-#    Updated: 2016/04/27 12:31:49 by nchrupal         ###   ########.fr        #
+#    Updated: 2016/04/27 15:23:54 by nchrupal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 INC = $(addprefix -I,$(INC_PATH))
 
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = $(addprefix -L,$(LIBFT_PATH) $(MLX_PATH) $(SDL_PATH))
 LDLIBS = -lft -lm -F . -framework SDL2 -framework Cocoa
 NAME = wolf3d
