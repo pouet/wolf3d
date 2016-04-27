@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 12:35:39 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/27 10:10:01 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 12:30:09 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,25 @@ SDL_Texture		*load_bmp(t_cont *cont, char *name)
 	return (tex);
 }
 
-void			load_gun(t_cont *cont)
+t_anim			load_one_anim(t_cont *cont, char *file, t_anim specs)
 {
+	t_anim	anim;
+
+	anim.tex.tex = load_bmp(cont, file);
+	SDL_QueryTexture(anim.tex.tex, NULL, NULL,
+			&anim.w, &anim.h);
+	anim.tex.w = anim.w;
+	anim.tex.h = anim.h;
+	anim.n_frame = specs.n_frame;
+	anim.replay = specs.replay;
+	anim.time = specs.time;
+	anim.w_one_frame = anim.w / anim.n_frame;
+	anim.started = specs.started;
+	anim.frame = 0;
+	if (SDL_LockTexture(anim.tex.tex, NULL,
+				(void **)&anim.tex.pixels, &anim.tex.pitch) < 0)
+		exit_sdlerror();
+	return (anim);
 }
 
 void			load_animantions(t_cont *cont)
@@ -78,34 +95,11 @@ void			load_animantions(t_cont *cont)
 	i = 0;
 	while (i < N_ANIM)
 	{
-		cont->anim[i].tex.tex = load_bmp(cont, name[i][0]);
-		SDL_QueryTexture(cont->anim[i].tex.tex, NULL, NULL,
-				&cont->anim[i].w, &cont->anim[i].h);
-		cont->anim[i].tex.w = cont->anim[i].w;
-		cont->anim[i].tex.h = cont->anim[i].h;
-		cont->anim[i].n_frame = anims[i].n_frame;
-		cont->anim[i].replay = -1;
-		cont->anim[i].time = anims[i].time;
-		cont->anim[i].w_one_frame = cont->anim[i].w / cont->anim[i].n_frame;
+		cont->anim[i] = load_one_anim(cont, name[i][0], anims[i]);
 		cont->anim[i].started = 1;
-		if (SDL_LockTexture(cont->anim[i].tex.tex, NULL,
-					(void **)&cont->anim[i].tex.pixels, &cont->anim[i].tex.pitch) < 0)
-			exit_sdlerror();
+		cont->anim[i].replay = -1;
 		start_anim(&cont->anim[i]);
-
-		cont->gun[i].tex.tex = load_bmp(cont, name[i][0]);
-		SDL_QueryTexture(cont->gun[i].tex.tex, NULL, NULL,
-				&cont->gun[i].w, &cont->gun[i].h);
-		cont->gun[i].tex.w = cont->gun[i].w;
-		cont->gun[i].tex.h = cont->gun[i].h;
-		cont->gun[i].n_frame = anims[i].n_frame;
-		cont->gun[i].replay = anims[i].replay;
-		cont->gun[i].time = anims[i].time;
-		cont->gun[i].w_one_frame = cont->gun[i].w / cont->gun[i].n_frame;
-		cont->gun[i].started = anims[i].started;
-		if (SDL_LockTexture(cont->gun[i].tex.tex, NULL,
-					(void **)&cont->gun[i].tex.pixels, &cont->gun[i].tex.pitch) < 0)
-			exit_sdlerror();
+		cont->gun[i] = load_one_anim(cont, name[i][0], anims[i]);
 		i++;
 	}
 	cont->gun[3].time = 1;

@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 15:40:21 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/27 09:07:43 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 12:34:47 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,7 @@ void	calc_szray(t_cont *cont, t_calc *c, int *side)
 			c->mapy += c->step.y;
 			*side = 1;
 		}
-		if (c->mapx < 0 || c->mapy < 0 || c->mapy >= cont->board.mapw ||
-		c->mapx >= cont->board.maph || cont->board.map[c->mapx][c->mapy] > 0)
+		if (cont->board.map[c->mapx][c->mapy] > 0)
 			break ;
 	}
 }
