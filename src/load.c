@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 12:35:39 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/26 15:14:56 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 10:10:01 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,13 @@ SDL_Texture		*load_bmp(t_cont *cont, char *name)
 	return (tex);
 }
 
+void			load_gun(t_cont *cont)
+{
+}
+
 void			load_animantions(t_cont *cont)
 {
-	static char	*name[N_ANIM][2] = {
+	static char		*name[N_ANIM][2] = {
 		{ "img/fusil_a_pompe.bmp", "" },
 		{ "img/lance_roquette.bmp", "sfx/rocket1i.wav" },
 		{ "img/coup_de_pied.bmp", "" },
@@ -69,7 +73,7 @@ void			load_animantions(t_cont *cont)
 		{ .n_frame = 3, .replay = 0, .time = 4, .started = 0 },
 		{ .n_frame = 4, .replay = 0, .time = 5, .started = 0 }
 	};
-	int		i;
+	int				i;
 
 	i = 0;
 	while (i < N_ANIM)
@@ -84,7 +88,6 @@ void			load_animantions(t_cont *cont)
 		cont->anim[i].time = anims[i].time;
 		cont->anim[i].w_one_frame = cont->anim[i].w / cont->anim[i].n_frame;
 		cont->anim[i].started = 1;
-
 		if (SDL_LockTexture(cont->anim[i].tex.tex, NULL,
 					(void **)&cont->anim[i].tex.pixels, &cont->anim[i].tex.pitch) < 0)
 			exit_sdlerror();
@@ -111,30 +114,13 @@ void			load_animantions(t_cont *cont)
 void			load_textures(t_cont *cont)
 {
 	static char	*name[N_TEXTURES] = {
-//		"img/gun_gif.bmp",
-//		"img/fusil_a_pompe.bmp",
-//		"img/lance_roquette.bmp",
-		"img/eagle.bmp",
-		"img/eagle.bmp",
-		"img/pinkiepie.bmp",
-//		"img/redbrick.bmp",
-		"img/rbdashgun.bmp",
-//		"img/purplestone.bmp",
-//		"img/herb.bmp",
-		"img/greystone.bmp",
-		"img/bluestone.bmp",
-		"img/mossy.bmp",
-//		"img/sky.bmp",
-		"img/wood.bmp",
-		"img/colorstone.bmp",
-		"img/barrel.bmp",
-		"img/pillar.bmp",
-		"img/greenlight.bmp",
-//		"img/eagle.bmp",
-		"img/rainbowdash512.bmp",
+		"img/eagle.bmp", "img/eagle.bmp", "img/pinkiepie.bmp",
+		"img/rbdashgun.bmp", "img/greystone.bmp", "img/bluestone.bmp",
+		"img/mossy.bmp", "img/wood.bmp", "img/colorstone.bmp", "img/barrel.bmp",
+		"img/pillar.bmp", "img/greenlight.bmp", "img/rainbowdash512.bmp",
 		"img/skybox.bmp"
 	};
-	int		i;
+	int			i;
 
 	i = 0;
 	while (i < N_TEXTURES)

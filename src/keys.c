@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/24 09:32:37 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/01 12:20:22 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 10:05:03 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,9 @@ void	turn(t_cont *cont, int key, double acc)
 {
 	double	olddirx;
 	double	oldplanex;
-//	double	acc;
 	double	cosmove;
 	double	sinmove;
 
-//	acc = 0.05;
 	if (key == K_RIGHT)
 		acc = -acc;
 	cosmove = cos(acc);
@@ -39,70 +37,65 @@ void	turn(t_cont *cont, int key, double acc)
 	cont->g.plane.y = oldplanex * sinmove + cont->g.plane.y * cosmove;
 }
 
-extern int map[24][24];
-
 void	move(t_cont *cont, int key)
 {
-	SDL_Rect	r;
-	double		acc;
+	SDL_Rect		r;
+	const double	acc = 0.25;
 
-//	acc = 0.15;
-	acc = 0.25;
 	if (key == K_UP)
 	{
 		r.x = cont->g.pos.x + cont->g.dir.x * acc;
 		r.y = cont->g.pos.y;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.x += cont->g.dir.x * acc;
 		r.x = cont->g.pos.x;
 		r.y = cont->g.pos.y + cont->g.dir.y * acc;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.y += cont->g.dir.y * acc;
 	}
 	else if (key == K_DOWN)
 	{
 		r.x = cont->g.pos.x - cont->g.dir.x * acc;
 		r.y = cont->g.pos.y;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.x -= cont->g.dir.x * acc;
 		r.x = cont->g.pos.x;
 		r.y = cont->g.pos.y - cont->g.dir.y * acc;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.y -= cont->g.dir.y * acc;
 	}
 }
 
 void	move_side(t_cont *cont, int key)
 {
-	SDL_Rect	r;
-	double		acc;
+	SDL_Rect		r;
+	const double	acc = 0.10;
 
-	acc = 0.10;
 	if (key == K_SIDE_L)
 	{
 		r.x = cont->g.pos.x;
 		r.y = cont->g.pos.y + cont->g.dir.x * acc;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.y += cont->g.dir.x * acc;
 		r.x = cont->g.pos.x - cont->g.dir.y * acc;
 		r.y = cont->g.pos.y;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.x -= cont->g.dir.y * acc;
 	}
 	else if (key == K_SIDE_R)
 	{
 		r.x = cont->g.pos.x;
 		r.y = cont->g.pos.y - cont->g.dir.x * acc;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.y -= cont->g.dir.x * acc;
 		r.x = cont->g.pos.x + cont->g.dir.y * acc;
 		r.y = cont->g.pos.y;
-		if (map[r.x][r.y] == 0)
+		if (cont->board.map[r.x][r.y] == 0)
 			cont->g.pos.x += cont->g.dir.y * acc;
 	}
 }
 
-void			key_arrow(int key, t_cont *cont)
+void	key_arrow(int key, t_cont *cont)
 {
 	if (key == K_LEFT || key == K_RIGHT)
 		turn(cont, key, 0.05);

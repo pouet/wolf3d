@@ -6,13 +6,13 @@
 #    By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/01 10:58:46 by nchrupal          #+#    #+#              #
-#    Updated: 2016/04/26 15:49:00 by nchrupal         ###   ########.fr        #
+#    Updated: 2016/04/27 08:45:40 by nchrupal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRC_NAME = $(sort main.c anim.c calc.c draw.c draw_floorceil.c draw_sprite.c \
 		   draw_wall.c errors.c events.c image.c init_quit.c keys.c load.c \
-		   n_to_s.c texture.c texture_lock.c xmalloc.c)
+		   n_to_s.c texture.c texture_lock.c xmalloc.c maps.c)
 SRC_PATH = ./src/
 OBJ_PATH = ./obj/
 LIBFT_PATH = ./libft/

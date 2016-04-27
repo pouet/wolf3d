@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 15:17:11 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/26 15:50:14 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 10:02:43 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,28 +55,26 @@ void	draw_gun(t_cont *cont)
 	SDL_Rect	win;
 	unsigned	col;
 	unsigned	alpha;
-	int			x;
-	int			y;
+	SDL_Rect	pt;
 	t_anim		*gun;
 
 	gun = &cont->gun[cont->actual_gun];
 	alpha = gun->tex.pixels[0] & 0x00FFFFFF;
-	win.x = WIN_W / 2 - gun->w_one_frame / 2;// + 350;// + 50;
+	win.x = WIN_W / 2 - gun->w_one_frame / 2;
 	win.y = WIN_H - gun->h;
-	y = 0;
-	while (y < gun->h)
+	pt.y = 0;
+	while (pt.y < gun->h)
 	{
-		x = gun->frame * (gun->w / gun->n_frame);
-		while (x < (gun->frame + 1) * gun->w_one_frame)
+		pt.x = gun->frame * (gun->w / gun->n_frame);
+		while (pt.x < (gun->frame + 1) * gun->w_one_frame)
 		{
-			col = gun->tex.pixels[y * gun->w + x];
-			col &= 0x00FFFFFF;
+			col = (gun->tex.pixels[pt.y * gun->w + pt.x]) & 0x00FFFFFF;
 			if (col != alpha)
 				put_pixel(cont,
-						win.x + x - gun->frame * (gun->w / gun->n_frame),
-						win.y + y, col);
-			x++;
+						win.x + pt.x - gun->frame * (gun->w / gun->n_frame),
+						win.y + pt.y, col);
+			pt.x++;
 		}
-		y++;
+		pt.y++;
 	}
 }

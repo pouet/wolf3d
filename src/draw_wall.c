@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 15:34:55 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/26 15:35:43 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 10:03:18 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ unsigned	side_brightness(unsigned col, int side)
 	return ((c.r << 16) | (c.g << 8) | c.b);
 }
 
-void	draw_wall(t_cont *cont, t_calc *c, int w, int side)
+void		draw_wall(t_cont *cont, t_calc *c, int w, int side)
 {
 	SDL_Rect	tex;
 	unsigned	col;

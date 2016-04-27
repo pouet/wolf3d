@@ -6,15 +6,13 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 15:40:21 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/26 15:44:00 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 09:07:43 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "calc.h"
 #include "wolf3d.h"
 #include "draw.h"
-
-extern int map[24][24];
 
 void	calc_val(t_cont *cont, int w, t_calc *c)
 {
@@ -55,7 +53,7 @@ void	calc_step(t_cont *cont, t_calc *c)
 	}
 }
 
-void	calc_szray(t_calc *c, int *side)
+void	calc_szray(t_cont *cont, t_calc *c, int *side)
 {
 	while (1)
 	{
@@ -71,7 +69,8 @@ void	calc_szray(t_calc *c, int *side)
 			c->mapy += c->step.y;
 			*side = 1;
 		}
-		if (map[c->mapx][c->mapy] > 0)
+		if (c->mapx < 0 || c->mapy < 0 || c->mapy >= cont->board.mapw ||
+		c->mapx >= cont->board.maph || cont->board.map[c->mapx][c->mapy] > 0)
 			break ;
 	}
 }
@@ -105,9 +104,9 @@ void	calc(t_cont *cont)
 	{
 		calc_val(cont, w, &c);
 		calc_step(cont, &c);
-		calc_szray(&c, &side);
+		calc_szray(cont, &c, &side);
 		calc_side(&side, &c);
-		c.ntex = map[c.mapx][c.mapy];
+		c.ntex = cont->board.map[c.mapx][c.mapy];
 		c.sztex = cont->tex[c.ntex].w;
 		draw_verticalline(cont, &c, w, side);
 		c.zbuffer[w] = c.perp;

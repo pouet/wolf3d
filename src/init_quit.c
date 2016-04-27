@@ -6,7 +6,7 @@
 /*   By: nchrupal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/26 14:30:17 by nchrupal          #+#    #+#             */
-/*   Updated: 2016/04/26 14:41:42 by nchrupal         ###   ########.fr       */
+/*   Updated: 2016/04/27 09:00:21 by nchrupal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "load.h"
 #include "errors.h"
 #include "xmalloc.h"
+#include "maps.h"
 
 int		init_video(t_cont *cont)
 {
@@ -59,6 +60,7 @@ void	init_var(t_cont *cont)
 	cont->img.tex = SDL_CreateTexture(cont->ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, WIN_W, WIN_H);
 	SDL_QueryTexture(cont->img.tex, NULL, NULL, &cont->img.w, &cont->img.h);
+	load_map(cont, 0);
 	load_textures(cont);
 	load_animantions(cont);
 }
